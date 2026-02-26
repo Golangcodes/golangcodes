@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Golang Codes — Learn Go Interactively</title>
+
+    <!-- SEO -->
+    <meta name="description"
+        content="Learn Go (Golang) interactively with a built-in code editor, 24+ lessons from basics to advanced, gamified progress tracking, and community-driven content. Free and open-source." />
+    <meta name="keywords" content="Go, Golang, learn Go, Go tutorial, Go programming, interactive coding, Go course" />
+    <link rel="canonical" href="https://golang.codes" />
+    <meta name="theme-color" content="#00ADD8" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://golang.codes" />
+    <meta property="og:title" content="Golang Codes — Learn Go Interactively" />
+    <meta property="og:description"
+        content="Master Go with an interactive code editor, 24+ lessons, and gamified progress tracking. Free and open-source." />
+    <meta property="og:image" content="https://golang.codes/static/golangcodeslogo.jpeg" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Golang Codes — Learn Go Interactively" />
+    <meta name="twitter:description"
+        content="Master Go with an interactive code editor, 24+ lessons, and gamified progress tracking." />
+    <meta name="twitter:image" content="https://golang.codes/static/golangcodeslogo.jpeg" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="/static/golangcodeslogo.jpeg" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+        rel="stylesheet" />
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                        heading: ["Plus Jakarta Sans", "sans-serif"],
+                    },
+                    colors: {
+                        goblue: {
+                            50: "#f0f9ff",
+                            100: "#e0f2fe",
+                            400: "#29b6f6",
+                            500: "#00ADD8",
+                            600: "#007D9C",
+                            700: "#005a70",
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+
+    <!-- Dark Mode Flash Prevention -->
+    <script>
+        if (localStorage.theme === "dark" || (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+            document.documentElement.classList.add("dark");
+        }
+    </script>
+
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #0c1220 0%, #0f172a 30%, #0e2a3d 60%, #0a3d5c 100%);
+        }
+
+        .glow-blue {
+            box-shadow: 0 0 60px rgba(0, 173, 216, 0.15), 0 0 120px rgba(0, 173, 216, 0.05);
+        }
+
+        .card-shine {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .fade-in-up-delay-1 {
+            animation-delay: 0.15s;
+            opacity: 0;
+        }
+
+        .fade-in-up-delay-2 {
+            animation-delay: 0.3s;
+            opacity: 0;
+        }
+
+        .fade-in-up-delay-3 {
+            animation-delay: 0.45s;
+            opacity: 0;
+        }
+
+        .code-block {
+            background: #1e293b;
+            border: 1px solid rgba(0, 173, 216, 0.2);
+            border-radius: 12px;
+        }
+
+        .stat-card {
+            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-white min-h-screen font-sans antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-slate-950/80 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3 group">
+                <img src="/static/golangcodeslogo.jpeg" alt="Golang Codes"
+                    class="w-9 h-9 rounded-lg shadow-lg group-hover:scale-105 transition-transform" />
+                <span class="font-heading font-bold text-xl tracking-tight">
+                    <span class="text-goblue-500">Golang</span><span class="text-slate-300">Codes</span>
+                </span>
+            </a>
+            <div class="flex items-center gap-4">
+                <a href="https://github.com/Golangcodes/golangcodes" target="_blank"
+                    class="text-slate-400 hover:text-white transition-colors text-sm font-medium flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                    </svg>
+                    GitHub
+                </a>
+                <a href="/go/Introduction"
+                    class="bg-goblue-500 hover:bg-goblue-600 text-white font-semibold px-5 py-2.5 rounded-lg transition-all hover:shadow-lg hover:shadow-goblue-500/25 text-sm">
+                    Start Learning →
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient relative overflow-hidden">
+        <!-- Background Decoration -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-goblue-500/5 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-20 right-10 w-96 h-96 bg-goblue-500/5 rounded-full blur-3xl"></div>
+            <div
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-goblue-500/3 rounded-full blur-3xl">
+            </div>
+        </div>
+
+        <div class="relative max-w-7xl mx-auto px-6 pt-32 pb-20 lg:pt-40 lg:pb-28">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <!-- Left Column -->
+                <div>
+                    <div class="fade-in-up">
+                        <div
+                            class="inline-flex items-center gap-2 bg-goblue-500/10 border border-goblue-500/20 rounded-full px-4 py-1.5 mb-6">
+                            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                            <span class="text-goblue-400 text-sm font-medium">Open Source & Free Forever</span>
+                        </div>
+                    </div>
+
+                    <h1
+                        class="font-heading text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight fade-in-up fade-in-up-delay-1">
+                        Master <span
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-goblue-400 to-goblue-500">Go</span>
+                        by
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-goblue-500 to-cyan-400">Writing
+                            Code</span>
+                    </h1>
+
+                    <p
+                        class="text-slate-400 text-lg lg:text-xl mt-6 leading-relaxed max-w-xl fade-in-up fade-in-up-delay-2">
+                        An interactive learning platform with a built-in code editor, 24+ structured lessons,
+                        and gamified progress tracking. Write, run, and learn Go — all in your browser.
+                    </p>
+
+                    <div class="flex flex-wrap gap-4 mt-10 fade-in-up fade-in-up-delay-3">
+                        <a href="/go/Introduction"
+                            class="bg-goblue-500 hover:bg-goblue-600 text-white font-bold px-8 py-4 rounded-xl transition-all hover:shadow-2xl hover:shadow-goblue-500/30 hover:-translate-y-0.5 text-lg flex items-center gap-2">
+                            Start Learning
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                        </a>
+                        <a href="https://github.com/Golangcodes/golangcodes" target="_blank"
+                            class="border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white font-semibold px-8 py-4 rounded-xl transition-all hover:bg-white/5 text-lg flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                            </svg>
+                            View on GitHub
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right Column — Code Preview -->
+                <div class="float-animation">
+                    <div class="code-block glow-blue p-6 relative">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                            <span class="ml-3 text-slate-500 text-xs font-mono">main.go</span>
+                        </div>
+                        <pre class="text-sm font-mono leading-relaxed"><code><span class="text-purple-400">package</span> <span class="text-white">main</span>
+
+<span class="text-purple-400">import</span> <span class="text-green-400">"fmt"</span>
+
+<span class="text-purple-400">func</span> <span class="text-goblue-400">main</span>() {
+    <span class="text-slate-500">// Your Go journey starts here</span>
+    <span class="text-white">fmt</span>.<span class="text-yellow-300">Println</span>(<span class="text-green-400">"Hello, Gopher! 🐹"</span>)
+
+    <span class="text-slate-500">// Learn by doing — edit and run live</span>
+    <span class="text-white">skills</span> := []<span class="text-goblue-400">string</span>{
+        <span class="text-green-400">"Variables"</span>,
+        <span class="text-green-400">"Structs"</span>,
+        <span class="text-green-400">"Goroutines"</span>,
+        <span class="text-green-400">"Channels"</span>,
+    }
+
+    <span class="text-purple-400">for</span> _, <span class="text-white">s</span> := <span class="text-purple-400">range</span> <span class="text-white">skills</span> {
+        <span class="text-white">fmt</span>.<span class="text-yellow-300">Printf</span>(<span class="text-green-400">"✅ %s\n"</span>, <span class="text-white">s</span>)
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Bar -->
+    <section class="border-y border-white/5 bg-slate-900/50">
+        <div class="max-w-7xl mx-auto px-6 py-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="font-heading text-3xl font-bold text-goblue-400">24+</div>
+                    <div class="text-slate-400 text-sm mt-1">Structured Lessons</div>
+                </div>
+                <div class="text-center">
+                    <div class="font-heading text-3xl font-bold text-goblue-400">100%</div>
+                    <div class="text-slate-400 text-sm mt-1">Free & Open Source</div>
+                </div>
+                <div class="text-center">
+                    <div class="font-heading text-3xl font-bold text-goblue-400">Live</div>
+                    <div class="text-slate-400 text-sm mt-1">Code Editor</div>
+                </div>
+                <div class="text-center">
+                    <div class="font-heading text-3xl font-bold text-goblue-400">XP</div>
+                    <div class="text-slate-400 text-sm mt-1">Gamified Progress</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-24 relative">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="font-heading text-4xl font-bold tracking-tight">
+                    Everything you need to <span class="text-goblue-400">learn Go</span>
+                </h2>
+                <p class="text-slate-400 mt-4 text-lg max-w-2xl mx-auto">
+                    Built by engineers, for engineers. No fluff — just clean code, real examples, and hands-on practice.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-x-16 gap-y-10">
+                <div class="flex gap-4 items-start group">
+                    <div
+                        class="w-1 h-full rounded-full bg-goblue-500/30 group-hover:bg-goblue-500 transition-colors flex-shrink-0">
+                    </div>
+                    <div>
+                        <h3 class="font-heading font-bold text-white mb-1">Built-In Code Editor</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Full Monaco Editor — the same engine behind VS
+                            Code — embedded directly in your browser.</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 items-start group">
+                    <div
+                        class="w-1 h-full rounded-full bg-green-500/30 group-hover:bg-green-500 transition-colors flex-shrink-0">
+                    </div>
+                    <div>
+                        <h3 class="font-heading font-bold text-white mb-1">Live Code Execution</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Run Go code instantly with server-side
+                            execution. See output in real-time, no local setup needed.</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 items-start group">
+                    <div
+                        class="w-1 h-full rounded-full bg-yellow-500/30 group-hover:bg-yellow-500 transition-colors flex-shrink-0">
+                    </div>
+                    <div>
+                        <h3 class="font-heading font-bold text-white mb-1">Click-to-Edit</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Click any code example in a lesson to load it
+                            into the editor. Modify, experiment, and run — zero friction.</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 items-start group">
+                    <div
+                        class="w-1 h-full rounded-full bg-purple-500/30 group-hover:bg-purple-500 transition-colors flex-shrink-0">
+                    </div>
+                    <div>
+                        <h3 class="font-heading font-bold text-white mb-1">XP & Gamification</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Earn XP for reading lessons and running code.
+                            Track your streak with read counts and completion badges.</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 items-start group">
+                    <div
+                        class="w-1 h-full rounded-full bg-pink-500/30 group-hover:bg-pink-500 transition-colors flex-shrink-0">
+                    </div>
+                    <div>
+                        <h3 class="font-heading font-bold text-white mb-1">24+ Structured Lessons</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">From variables to goroutines, channels to
+                            design patterns. A complete, ordered curriculum.</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 items-start group">
+                    <div
+                        class="w-1 h-full rounded-full bg-orange-500/30 group-hover:bg-orange-500 transition-colors flex-shrink-0">
+                    </div>
+                    <div>
+                        <h3 class="font-heading font-bold text-white mb-1">Community Driven</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Open source and built for contributions. Edit
+                            lessons on GitHub, submit PRs, and help others learn.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Course Preview -->
+    <section class="py-24 bg-slate-900/30 border-y border-white/5">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="font-heading text-4xl font-bold tracking-tight">Course Syllabus</h2>
+                <p class="text-slate-400 mt-4 text-lg">From zero to production-grade Go. Every lesson has runnable code.
+                </p>
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-3">
+                {{range .Resources}}
+                <a href="{{.Path}}"
+                    class="flex items-center gap-4 px-5 py-4 rounded-xl border border-white/5 hover:border-goblue-500/30 hover:bg-white/[0.02] transition-all group">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-goblue-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-goblue-500/20 transition-colors">
+                        <svg class="w-4 h-4 text-goblue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <span
+                        class="text-slate-300 group-hover:text-white font-medium text-sm transition-colors">{{.Title}}</span>
+                    <svg class="w-4 h-4 text-slate-600 group-hover:text-goblue-400 ml-auto transition-colors"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+                {{end}}
+            </div>
+
+
+        </div>
+    </section>
+
+
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 py-10">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <img src="/static/golangcodeslogo.jpeg" alt="Logo" class="w-7 h-7 rounded-lg" />
+                <span class="text-slate-500 text-sm">© 2025 Golang Codes. MIT License.</span>
+            </div>
+            <div class="flex items-center gap-6 text-sm">
+                <a href="https://github.com/Golangcodes/golangcodes" target="_blank"
+                    class="text-slate-500 hover:text-white transition-colors">GitHub</a>
+                <a href="/go/Introduction" class="text-slate-500 hover:text-white transition-colors">Lessons</a>
+                <a href="/go/Community Resources"
+                    class="text-slate-500 hover:text-white transition-colors">Community</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>

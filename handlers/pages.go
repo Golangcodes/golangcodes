@@ -100,34 +100,14 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFiles("templates/index.html")
+	tmpl, err := template.ParseFiles("templates/landing.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	}
-
-	contentBytes, err := os.ReadFile("Go/Index.md")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	var htmlBuf bytes.Buffer
-	if err := goldmark.Convert(contentBytes, &htmlBuf); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	content := htmlBuf.String()
-
-	activeResource := Resource{
-		Title:   "Go Course Outline",
-		Path:    "/",
-		Content: template.HTML(content),
 	}
 
 	data := PageData{
-		Resources:      getResources(),
-		ActiveResource: &activeResource,
+		Resources: getResources(),
 	}
 
 	tmpl.Execute(w, data)

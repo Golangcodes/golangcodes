@@ -52,7 +52,7 @@ This project follows our [Code of Conduct](CODE_OF_CONDUCT.md). By participating
 ### 1. Fork and Clone
 
 ```bash
-git clone https://github.com/<your-username>/golang.codes.git
+git clone https://github.com/<your-username>/golangcodes.git
 cd golang.codes
 ```
 
