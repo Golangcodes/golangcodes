@@ -560,18 +560,30 @@
                 <span
                     class="text-sm font-semibold text-slate-600 dark:text-slate-400 transition-colors duration-200">main.go</span>
             </div>
-            <button id="run-btn"
-                class="bg-[#1e293b] hover:bg-slate-900 dark:bg-blue-600 dark:hover:bg-blue-500 text-white px-5 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-50 dark:focus:ring-offset-slate-900"
-                hx-post="/api/run" hx-target="#output" hx-indicator="#loading" hx-include="#code-input">
-                <svg class="w-4 h-4 text-[#5fbceb]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z">
-                    </path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                Run Code
-            </button>
+            <div class="flex items-center gap-3">
+                <button id="reset-btn"
+                    class="hidden bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-all shadow-sm focus:outline-none"
+                    title="Reset to original lesson code">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                        </path>
+                    </svg>
+                    Reset Code
+                </button>
+                <button id="run-btn"
+                    class="bg-[#1e293b] hover:bg-slate-900 dark:bg-blue-600 dark:hover:bg-blue-500 text-white px-5 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-50 dark:focus:ring-offset-slate-900"
+                    hx-post="/api/run" hx-target="#output" hx-indicator="#loading" hx-include="#code-input">
+                    <svg class="w-4 h-4 text-[#5fbceb]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z">
+                        </path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Run Code
+                </button>
+            </div>
         </div>
 
         <!-- Editor Container -->
@@ -685,6 +697,11 @@
 
                     const codeNode = block.querySelector('code') || block;
 
+                    // Store the original snippet before parsing local storage overrides
+                    if (!block.dataset.originalCode) {
+                        block.dataset.originalCode = codeNode.textContent;
+                    }
+
                     // 1. Load from local storage
                     const currentPath = window.location.pathname;
                     const savedSnippet = window.StorageAPI.getSnippet(currentPath, index);
@@ -711,6 +728,27 @@
                         if (window.editor) {
                             window.editor.setValue(code);
                             window.currentEditingSnippetIndex = index; // track the active snippet
+
+                            const resetBtn = document.getElementById('reset-btn');
+                            if (resetBtn) {
+                                resetBtn.classList.remove('hidden');
+                                resetBtn.onclick = function () {
+                                    const originalCode = block.dataset.originalCode;
+                                    if (originalCode && window.editor) {
+                                        // Re-apply wrapper if it was applied initially
+                                        let resetCode = originalCode;
+                                        if (!resetCode.includes("package main")) {
+                                            resetCode = `package main\n\nimport "fmt"\n\nfunc main() {\n\t// Auto-imported snippet\n\t${resetCode.trim().replace(/\n/g, '\n\t')}\n}`;
+                                        }
+                                        window.editor.setValue(resetCode);
+                                        // The model change event will auto-save the restored code,
+                                        // but let's also ensure the snippet is removed from local storage
+                                        if (window.StorageAPI.removeSnippet) {
+                                            window.StorageAPI.removeSnippet(currentPath, index);
+                                        }
+                                    }
+                                };
+                            }
 
                             // Visual feedback
                             const originalBg = this.style.backgroundColor;

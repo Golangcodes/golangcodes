@@ -78,6 +78,9 @@ window.StorageAPI = {
     saveCode: function (path, code) {
         localStorage.setItem('code_' + path, code);
     },
+    removeCode: function (path) {
+        localStorage.removeItem('code_' + path);
+    },
 
     // ---- Lesson Code Snippets Edits ----
     getSnippet: function (path, index) {
@@ -85,5 +88,8 @@ window.StorageAPI = {
     },
     saveSnippet: function (path, index, code) {
         localStorage.setItem(`snippet_${path}_${index}`, code);
+    },
+    removeSnippet: function (path, index) {
+        localStorage.removeItem(`snippet_${path}_${index}`);
     }
 };

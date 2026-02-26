@@ -10,7 +10,12 @@ import (
 	"strings"
 
 	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/extension"
 )
+
+func slugify(s string) string {
+	return strings.ReplaceAll(strings.ToLower(s), " ", "-")
+}
 
 type Resource struct {
 	Title   string
@@ -76,7 +81,7 @@ func getResources() []Resource {
 		if _, exists := entryMap[expectedTitle]; exists {
 			resources = append(resources, Resource{
 				Title: expectedTitle,
-				Path:  "/go/" + expectedTitle,
+				Path:  "/go/" + slugify(expectedTitle),
 			})
 			// Remove so we know what's left
 			delete(entryMap, expectedTitle)
@@ -87,7 +92,7 @@ func getResources() []Resource {
 	for title := range entryMap {
 		resources = append(resources, Resource{
 			Title: title,
-			Path:  "/go/" + title,
+			Path:  "/go/" + slugify(title),
 		})
 	}
 
@@ -114,22 +119,52 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ResourceHandler(w http.ResponseWriter, r *http.Request) {
-	filename := strings.TrimPrefix(r.URL.Path, "/go/")
+	slug := strings.TrimPrefix(r.URL.Path, "/go/")
 
 	// Normalize filename by removing any incoming extension early for our router checks
-	filename = strings.TrimSuffix(filename, ".html")
-	filename = strings.TrimSuffix(filename, ".md")
+	slug = strings.TrimSuffix(slug, ".html")
+	slug = strings.TrimSuffix(slug, ".md")
 
-	if filename == "" || filename == "/" || strings.ToLower(filename) == "index" {
-		http.Redirect(w, r, "/go/Introduction", http.StatusMovedPermanently)
+	// Make lookups case-insensitive
+	slug = strings.ToLower(slug)
+
+	if slug == "" || slug == "/" || slug == "index" {
+		http.Redirect(w, r, "/go/introduction", http.StatusMovedPermanently)
 		return
 	}
-	if strings.Contains(filename, "..") {
+	if strings.Contains(slug, "..") {
 		http.Error(w, "Invalid resource", http.StatusBadRequest)
 		return
 	}
 
-	path := filepath.Join("Go", filename+".md")
+	resources := getResources()
+	var actualTitle string
+	var activeResource Resource
+	var prevResource *Resource
+	var nextResource *Resource
+
+	normalizedPath := "/go/" + slug
+	for i, res := range resources {
+		if res.Path == normalizedPath {
+			activeResource = res
+			actualTitle = res.Title
+
+			if i > 0 {
+				prevResource = &resources[i-1]
+			}
+			if i < len(resources)-1 {
+				nextResource = &resources[i+1]
+			}
+			break
+		}
+	}
+
+	if actualTitle == "" {
+		http.Error(w, "Resource not found", http.StatusNotFound)
+		return
+	}
+
+	path := filepath.Join("Go", actualTitle+".md")
 
 	contentBytes, err := os.ReadFile(path)
 	if err != nil {
@@ -139,7 +174,13 @@ func ResourceHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Convert Markdown to HTML
 	var htmlBuf bytes.Buffer
-	if err := goldmark.Convert(contentBytes, &htmlBuf); err != nil {
+	md := goldmark.New(
+		goldmark.WithExtensions(
+			extension.Table,
+			extension.Linkify,
+		),
+	)
+	if err := md.Convert(contentBytes, &htmlBuf); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -157,26 +198,7 @@ func ResourceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resources := getResources()
-	var activeResource Resource
-	var prevResource *Resource
-	var nextResource *Resource
-
-	normalizedPath := "/go/" + filename
-	for i, res := range resources {
-		if res.Path == normalizedPath {
-			activeResource = res
-			activeResource.Content = template.HTML(content) // Dangerous in prod without sanitization, but okay for local files
-
-			if i > 0 {
-				prevResource = &resources[i-1]
-			}
-			if i < len(resources)-1 {
-				nextResource = &resources[i+1]
-			}
-			break
-		}
-	}
+	activeResource.Content = template.HTML(content) // Dangerous in prod without sanitization, but okay for local files
 
 	data := PageData{
 		Resources:      resources,
