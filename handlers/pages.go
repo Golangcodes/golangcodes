@@ -187,8 +187,6 @@ func ResourceHandler(w http.ResponseWriter, r *http.Request) {
 
 	content := htmlBuf.String()
 
-	// Replace youtube links with iframe embeds (keep existing logic but adjusted for markdown compiled html)
-	// Matches href="https://youtu.be/ID" or https://www.youtube.com/watch?v=ID
 	youtubeRegex := regexp.MustCompile(`<a[^>]*href="https://(?:www\.)?youtu(?:be\.com/watch\?v=|\.be/)([^"&]+)[^"]*"[^>]*>[^<]*</a>`)
 	content = youtubeRegex.ReplaceAllString(content, `<iframe class="w-full aspect-video rounded-lg shadow-md my-6" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>`)
 
@@ -198,7 +196,7 @@ func ResourceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	activeResource.Content = template.HTML(content) // Dangerous in prod without sanitization, but okay for local files
+	activeResource.Content = template.HTML(content)
 
 	data := PageData{
 		Resources:      resources,
