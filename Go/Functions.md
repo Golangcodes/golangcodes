@@ -962,13 +962,12 @@ package main
 import (
 	"errors"
 	"fmt"
-	"log"
 	"math"
 )
 
 // Basic function
 func greet(name string) {
-	fmt.Printf("Hello, %s!\\n", name)
+	fmt.Printf("Hello, %s!\n", name)
 }
 
 // Multiple return values
