@@ -2,15 +2,28 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"os"
-	"os/exec"
-	"path/filepath"
+	"net/url"
 	"strings"
 	"time"
 )
+
+const (
+	maxOutputBytes = 1 * 1024 * 1024
+	execTimeout    = 10 * time.Second
+	playgroundURL  = "https://play.golang.org/compile"
+)
+
+type playgroundResponse struct {
+	Errors string `json:"Errors"`
+	Events []struct {
+		Message string `json:"Message"`
+		Kind    string `json:"Kind"` // "stdout" or "stderr"
+	} `json:"Events"`
+}
 
 func RunHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -24,63 +37,66 @@ func RunHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create a temporary directory for the code
-	tempDir, err := os.MkdirTemp("", "go-run-")
-	if err != nil {
-		sendResult(w, fmt.Sprintf("Internal Error: %v", err), true)
-		return
-	}
-	defer os.RemoveAll(tempDir) // clean up
+	output, isError := runInPlayground(code)
+	sendResult(w, output, isError)
+}
 
-	filePath := filepath.Join(tempDir, "main.go")
-	if err := os.WriteFile(filePath, []byte(code), 0644); err != nil {
-		sendResult(w, fmt.Sprintf("Internal Error: %v", err), true)
-		return
-	}
-
-	// Set a 5-second timeout for execution
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+func runInPlayground(code string) (string, bool) {
+	ctx, cancel := context.WithTimeout(context.Background(), execTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "go", "run", filePath)
+	form := url.Values{
+		"body":    {code},
+		"version": {"2"},
+		"withVet": {"true"},
+	}
 
-	// Capture output
-	outPipe, err := cmd.StdoutPipe()
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		playgroundURL,
+		strings.NewReader(form.Encode()),
+	)
 	if err != nil {
-		sendResult(w, fmt.Sprintf("Internal Error: %v", err), true)
-		return
+		return fmt.Sprintf("Internal Error: %v", err), true
 	}
-	errPipe, err := cmd.StderrPipe()
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		sendResult(w, fmt.Sprintf("Internal Error: %v", err), true)
-		return
-	}
-
-	if err := cmd.Start(); err != nil {
-		sendResult(w, fmt.Sprintf("Failed to run code: %v", err), true)
-		return
-	}
-
-	outBytes, _ := io.ReadAll(outPipe)
-	errBytes, _ := io.ReadAll(errPipe)
-
-	err = cmd.Wait()
-
-	if ctx.Err() == context.DeadlineExceeded {
-		sendResult(w, "Execution timed out (5s limit)", true)
-		return
-	}
-
-	output := string(outBytes)
-	if len(errBytes) > 0 {
-		if len(output) > 0 {
-			output += "\n"
+		if ctx.Err() == context.DeadlineExceeded {
+			return fmt.Sprintf("Execution timed out (%s limit)", execTimeout), true
 		}
-		output += string(errBytes)
+		return fmt.Sprintf("Failed to reach execution service: %v", err), true
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(io.LimitReader(resp.Body, maxOutputBytes))
+	if err != nil {
+		return fmt.Sprintf("Failed to read response: %v", err), true
 	}
 
-	isError := err != nil
-	sendResult(w, output, isError)
+	var result playgroundResponse
+	if err := json.Unmarshal(body, &result); err != nil {
+		return fmt.Sprintf("Failed to parse response: %v", err), true
+	}
+
+	// Compilation or vet errors come back in the Errors field.
+	if result.Errors != "" {
+		return result.Errors, true
+	}
+
+	// Events are ordered stdout/stderr messages from the running program.
+	var sb strings.Builder
+	hasStderr := false
+	for _, event := range result.Events {
+		sb.WriteString(event.Message)
+		if event.Kind == "stderr" {
+			hasStderr = true
+		}
+	}
+
+	return sb.String(), hasStderr
 }
 
 func sendResult(w http.ResponseWriter, output string, isError bool) {
@@ -101,8 +117,6 @@ func sendResult(w http.ResponseWriter, output string, isError bool) {
 }
 
 func templateEscape(s string) string {
-	// Simple escape for HTML display
-	// In a real app we'd use html/template, but this is a quick HTMX fragment
 	s = strings.ReplaceAll(s, "&", "&amp;")
 	s = strings.ReplaceAll(s, "<", "&lt;")
 	s = strings.ReplaceAll(s, ">", "&gt;")
