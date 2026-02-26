@@ -744,11 +744,11 @@ var i interface{} = "hello"
 
 switch v := i.(type) {
 case int:
-    fmt.Printf("Integer: %v\\n", v)
+    fmt.Printf("Integer: %v\n", v)
 case string:
-    fmt.Printf("String: %v\\n", v)
+    fmt.Printf("String: %v\n", v)
 default:
-    fmt.Printf("Unknown type: %T\\n", v)
+    fmt.Printf("Unknown type: %T\n", v)
 }
 ```
 
@@ -871,7 +871,7 @@ func main() {
 
 	// Basic if with initialization
 	if n := rand.Intn(100); n < 50 {
-		fmt.Printf("%d is less than 50\\n", n)
+		fmt.Printf("%d is less than 50\n", n)
 	}
 
 	// Switch with multiple cases
@@ -886,23 +886,23 @@ func main() {
 	var i interface{} = 42.5
 	switch v := i.(type) {
 	case int:
-		fmt.Printf("Integer: %d\\n", v)
+		fmt.Printf("Integer: %d\n", v)
 	case float64:
-		fmt.Printf("Float: %f\\n", v)
+		fmt.Printf("Float: %f\n", v)
 	case string:
-		fmt.Printf("String: %s\\n", v)
+		fmt.Printf("String: %s\n", v)
 	default:
-		fmt.Printf("Unknown type: %T\\n", v)
+		fmt.Printf("Unknown type: %T\n", v)
 	}
 
 	// Functional condition
 	checkNumber := func(n int) {
 		if isEven, isLarge := n%2 == 0, n > 50; isEven && isLarge {
-			fmt.Printf("%d is even and large\\n", n)
+			fmt.Printf("%d is even and large\n", n)
 		} else if isEven {
-			fmt.Printf("%d is even\\n", n)
+			fmt.Printf("%d is even\n", n)
 		} else {
-			fmt.Printf("%d is odd\\n", n)
+			fmt.Printf("%d is odd\n", n)
 		}
 	}
 
