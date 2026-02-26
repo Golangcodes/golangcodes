@@ -53,7 +53,7 @@ func getResources() []Resource {
 		"Structs",
 		"Packages and Modules",
 		"Interfaces in Go",
-		"Erros[1]",
+		"Errors[1]",
 		"Go Symbols",
 		"Go standard library",
 		"Channels in Go",

@@ -192,7 +192,7 @@ s := strconv.FormatInt(255, 2)            // "11111111"
 
 ## `errors` — Error Handling
 
-See the dedicated [Errors lesson](/go/Erros) for full coverage.
+See the dedicated [Errors lesson](/go/Errors) for full coverage.
 
 ```Go
 // Create errors
