@@ -339,5 +339,3 @@ func invertMap(m map[string]int) map[int]string {
 	return inverted
 }
 ```
-
-This comprehensive guide covers maps in Go from basic to advanced concepts. Would you like me to focus on any particular aspect in more detail?

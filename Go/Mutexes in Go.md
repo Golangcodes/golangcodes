@@ -1,6 +1,5 @@
 ![](https://www.notion.so/icons/aries_green.svg)
 
-# Mutexes in Go
 
 # Mutexes in Go: From Basics to Advanced
 
@@ -419,5 +418,3 @@ func main() {
 	wg2.Wait()
 }
 ```
-
-This comprehensive guide covers mutexes in Go from basic to advanced concepts. Would you like me to focus on any particular aspect in more detail?

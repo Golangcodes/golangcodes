@@ -1,6 +1,5 @@
 ![](https://www.notion.so/icons/priority-low_green.svg)
 
-# Packages and Modules
 
 # Packages and Modules in Go: From Basics to Advanced
 
@@ -343,5 +342,3 @@ func main() {
     fmt.Printf("5 + 3 = %d\\n", sum)
 }
 ```
-
-This comprehensive guide covers Go packages and modules from basic to advanced concepts. Would you like me to focus on any particular aspect in more detail?

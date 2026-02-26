@@ -341,4 +341,3 @@ func main() {
 }
 ```
 
-This comprehensive guide covers Go generics from basic to advanced concepts. Would you like me to focus on any particular aspect in more detail?

@@ -1,6 +1,5 @@
 ![](https://www.notion.so/icons/wall_green.svg)
 
-# Slice
 
 # Slices in Go: From Basics to Advanced
 
@@ -345,5 +344,3 @@ func main() {
 	}
 }
 ```
-
-This comprehensive guide covers slices in Go from basic to advanced concepts. Would you like me to focus on any particular aspect in more detail?

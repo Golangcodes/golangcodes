@@ -23,7 +23,7 @@ func main() {
 
 * * *
 
-## 🧩 2. **Slice**
+##  2. **Slice**
 
 **Dynamic, resizable view into an underlying array.**
 
@@ -219,7 +219,7 @@ func main() {
 
 * * *
 
-## 🔗 13. **Graph**
+## 13. **Graph**
 
 **Nodes connected by edges (directed or undirected).**
 
