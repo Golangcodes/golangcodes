@@ -8,6 +8,11 @@ I created this project entirely out of my own experience learning Go. Whenever I
 
 Eventually, I realized that my personal notes had grown into a pretty comprehensive curriculum. I thought: _"If I share this freely, and allow people to read, edit, and use an interactive compiler right beside the notes, it could make a massive difference for other beginners."_
 
+Remember this is not an expert writing go resources, it is someone learning Go sharing their notes with others.
+If you find any mistakes, please don't hesitate to correct them, and if you have any suggestions, please feel free to share them.
+The aim to make learning go interactive and fun for everyone.
+
+
 ## Who I Am
 
 My name is Hersi! I am a developer passionate about building tools and sharing knowledge. You can find out more about me and what I do at my personal website: [hersi.dev](https://hersi.dev).
