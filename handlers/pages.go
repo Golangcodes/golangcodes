@@ -10,9 +10,7 @@ import (
 	"strings"
 
 	"github.com/yuin/goldmark"
-	meta "github.com/yuin/goldmark-meta"
 	"github.com/yuin/goldmark/extension"
-	"github.com/yuin/goldmark/parser"
 )
 
 func slugify(s string) string {
@@ -24,6 +22,7 @@ type Resource struct {
 	Path         string
 	Content      template.HTML
 	QualityScore int
+	TotalVotes   int
 }
 
 type PageData struct {
@@ -82,10 +81,12 @@ func getResources() []Resource {
 	// Add resources in the defined linear order
 	for _, expectedTitle := range linearOrder {
 		if _, exists := entryMap[expectedTitle]; exists {
+			score, votes := Store.GetScoreAndVotes(slugify(expectedTitle))
 			resources = append(resources, Resource{
 				Title:        expectedTitle,
 				Path:         "/go/" + slugify(expectedTitle),
-				QualityScore: 10,
+				QualityScore: score,
+				TotalVotes:   votes,
 			})
 			// Remove so we know what's left
 			delete(entryMap, expectedTitle)
@@ -94,10 +95,12 @@ func getResources() []Resource {
 
 	// Append any remaining items (just in case they weren't in the list)
 	for title := range entryMap {
+		score, votes := Store.GetScoreAndVotes(slugify(title))
 		resources = append(resources, Resource{
 			Title:        title,
 			Path:         "/go/" + slugify(title),
-			QualityScore: 10,
+			QualityScore: score,
+			TotalVotes:   votes,
 		})
 	}
 
@@ -177,28 +180,17 @@ func ResourceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Convert Markdown to HTML and extract meta
+	// Convert Markdown to HTML
 	var htmlBuf bytes.Buffer
-	context := parser.NewContext()
 	md := goldmark.New(
 		goldmark.WithExtensions(
 			extension.Table,
 			extension.Linkify,
-			meta.Meta,
 		),
 	)
-	if err := md.Convert(contentBytes, &htmlBuf, parser.WithContext(context)); err != nil {
+	if err := md.Convert(contentBytes, &htmlBuf); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	}
-
-	metaData := meta.Get(context)
-	if metaData != nil {
-		if scoreRaw, ok := metaData["score"]; ok {
-			if scoreData, ok := scoreRaw.(int); ok {
-				activeResource.QualityScore = scoreData
-			}
-		}
 	}
 
 	content := htmlBuf.String()

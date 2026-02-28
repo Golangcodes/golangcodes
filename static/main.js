@@ -118,6 +118,12 @@ document.addEventListener("DOMContentLoaded", () => {
                             percentageUI.classList.add('text-green-500', 'scale-110');
                             setTimeout(() => percentageUI.classList.remove('text-green-500', 'scale-110'), 400);
                         }
+
+                        const voteCountUI = document.getElementById('vote-count');
+                        if (voteCountUI && data.total_votes) {
+                            voteCountUI.textContent = `(${data.total_votes} ratings)`;
+                        }
+
                         updateXPDisplay(5); // Reward user for rating!
                     }
                 } catch (error) {

@@ -483,6 +483,9 @@
                             <span class="text-sm font-semibold text-slate-800 dark:text-slate-200">Quality Score: <span
                                     id="score-percentage"
                                     class="text-blue-600 dark:text-blue-400 font-bold transition-all duration-300">{{.ActiveResource.QualityScore}}%</span></span>
+                            <span id="vote-count"
+                                class="text-xs text-slate-500 font-medium">({{.ActiveResource.TotalVotes}}
+                                ratings)</span>
                         </div>
                         <div class="flex items-center gap-1 mt-1 text-slate-300 dark:text-slate-600" id="star-rating">
                             <button data-score="1"
