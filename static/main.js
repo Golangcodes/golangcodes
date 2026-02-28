@@ -26,6 +26,119 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 
+    // 2.5 Dynamic Page Rating 
+    const ratingContainer = document.getElementById('quality-score-container');
+    const starButtons = document.querySelectorAll('#star-rating button');
+    const percentageUI = document.getElementById('score-percentage');
+
+    if (ratingContainer && starButtons.length > 0) {
+        const slug = ratingContainer.getAttribute('data-slug');
+        const starRatingWrapper = document.getElementById('star-rating');
+
+        // Load existing ratings from localStorage
+        let userRatings = {};
+        try {
+            userRatings = JSON.parse(localStorage.getItem('user_ratings')) || {};
+        } catch (e) {
+            userRatings = {};
+        }
+
+        const existingScore = userRatings[slug];
+
+        // Function to lock stars visually
+        const lockStars = (score) => {
+            starButtons.forEach(b => {
+                const s = parseInt(b.getAttribute('data-score'), 10);
+                if (s <= score) {
+                    b.classList.add('text-yellow-400');
+                    b.classList.remove('text-slate-300', 'dark:text-slate-600');
+                } else {
+                    b.classList.remove('text-yellow-400');
+                    b.classList.add('text-slate-300', 'dark:text-slate-600');
+                }
+                b.disabled = true;
+                b.classList.add('cursor-default');
+            });
+        };
+
+        // If user already rated this page, lock the UI on load
+        if (existingScore) {
+            lockStars(existingScore);
+            const rateText = starRatingWrapper.querySelector('span');
+            if (rateText) rateText.textContent = 'Rated';
+        }
+
+        starButtons.forEach(btn => {
+            // Uniform Hover Logic
+            btn.addEventListener('mouseenter', () => {
+                if (existingScore) return; // Don't hover if already rated
+                const hoverScore = parseInt(btn.getAttribute('data-score'), 10);
+                starButtons.forEach(b => {
+                    const s = parseInt(b.getAttribute('data-score'), 10);
+                    if (s <= hoverScore) {
+                        b.classList.add('text-yellow-400');
+                        b.classList.remove('text-slate-300', 'dark:text-slate-600');
+                    } else {
+                        b.classList.remove('text-yellow-400');
+                        b.classList.add('text-slate-300', 'dark:text-slate-600');
+                    }
+                });
+            });
+
+            btn.addEventListener('click', async (e) => {
+                if (existingScore) return; // Prevent clicking if already rated
+
+                const score = parseInt(btn.getAttribute('data-score'), 10);
+
+                // Visual feedback for clicking
+                btn.style.transform = 'scale(1.2)';
+                setTimeout(() => btn.style.transform = 'scale(1)', 150);
+
+                // Lock stars after voting
+                lockStars(score);
+                const rateText = starRatingWrapper.querySelector('span');
+                if (rateText) rateText.textContent = 'Rated';
+
+                // Save to localStorage
+                userRatings[slug] = score;
+                localStorage.setItem('user_ratings', JSON.stringify(userRatings));
+
+                try {
+                    const response = await fetch('/api/rate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ slug: slug, score: score })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Update UI seamlessly
+                        if (percentageUI) {
+                            percentageUI.textContent = data.percentage + '%';
+                            percentageUI.classList.add('text-green-500', 'scale-110');
+                            setTimeout(() => percentageUI.classList.remove('text-green-500', 'scale-110'), 400);
+                        }
+                        updateXPDisplay(5); // Reward user for rating!
+                    }
+                } catch (error) {
+                    console.error("Failed to submit rating:", error);
+                }
+            });
+        });
+
+        if (starRatingWrapper) {
+            starRatingWrapper.addEventListener('mouseleave', () => {
+                if (userRatings[slug]) return; // Keep locked state
+                starButtons.forEach(b => {
+                    if (!b.disabled) {
+                        b.classList.remove('text-yellow-400');
+                        b.classList.add('text-slate-300', 'dark:text-slate-600');
+                    }
+                });
+            });
+        }
+    }
+
     // 3. Mark links in sidebar as completed with read counts
     const sidebarLinks = document.querySelectorAll('aside a');
     const readCounts = window.StorageAPI.getReadCounts();
