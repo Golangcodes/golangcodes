@@ -10,7 +10,7 @@ ARG AIR_VERSION=v1.52.3
 FROM golang:${GO_VERSION}-alpine AS deps
 
 WORKDIR /src
-COPY go.mod go.sum ./
+COPY go.mod go.su[m] ./
 RUN go mod download
 
 # ------------------------------------------------------------------------ dev
