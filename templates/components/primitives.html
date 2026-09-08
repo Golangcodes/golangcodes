@@ -1,0 +1,135 @@
+{{/*
+  Primitives: button, badge, card, progress, stat, empty, spinner, skeleton.
+
+  Every component takes a dict. Keys are optional unless marked required.
+      {{template "ui/button" dict "Label" "Run" "Variant" "primary"}}
+*/}}
+
+{{/* ui/button — Label(required) Variant Size Href Type Class Attrs Disabled Loading Full
+     Variants: primary secondary ghost danger success. Sizes: sm md lg. */}}
+{{define "ui/button"}}
+{{- $variants := dict
+    "primary"   "bg-goblue-500 hover:bg-goblue-600 text-white hover:shadow-lg hover:shadow-goblue-500/25"
+    "secondary" "border border-white/10 hover:border-white/25 hover:bg-white/5 text-slate-200"
+    "ghost"     "text-slate-400 hover:text-white hover:bg-white/5"
+    "danger"    "bg-red-600 hover:bg-red-500 text-white"
+    "success"   "bg-emerald-600 hover:bg-emerald-500 text-white" -}}
+{{- $sizes := dict
+    "sm" "text-xs px-3 py-1.5 rounded-lg gap-1.5"
+    "md" "text-sm px-5 py-2.5 rounded-xl gap-2"
+    "lg" "text-base px-7 py-3.5 rounded-xl gap-2.5" -}}
+{{- $base := "inline-flex items-center justify-center font-semibold transition-all select-none disabled:opacity-40 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goblue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950" -}}
+{{- $full := "" -}}{{- if .Full}}{{$full = "w-full"}}{{end -}}
+{{- $cls := printf "%s %s %s %s %s" $base (opt $variants .Variant "primary") (opt $sizes .Size "md") $full (def "" .Class) -}}
+{{- if .Href -}}
+<a href="{{.Href}}" class="{{$cls}}" {{with .Attrs}}{{.}}{{end}}>
+    {{- if .Loading}}{{template "ui/spinner" dict "Size" "sm"}}{{end -}}
+    {{.Label}}
+</a>
+{{- else -}}
+<button type="{{def "button" .Type}}" class="{{$cls}}" {{if .Disabled}}disabled{{end}} {{with .Attrs}}{{.}}{{end}}>
+    {{- if .Loading}}{{template "ui/spinner" dict "Size" "sm"}}{{end -}}
+    {{.Label}}
+</button>
+{{- end -}}
+{{end}}
+
+{{/* ui/badge — Label(required) Variant Class. Variants: default go pass fail warn info */}}
+{{define "ui/badge"}}
+{{- $variants := dict
+    "default" "border-white/10 text-slate-400"
+    "go"      "border-goblue-500/30 text-goblue-400 bg-goblue-500/10"
+    "pass"    "border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
+    "fail"    "border-red-500/30 text-red-400 bg-red-500/10"
+    "warn"    "border-amber-500/30 text-amber-400 bg-amber-500/10"
+    "info"    "border-sky-500/30 text-sky-400 bg-sky-500/10" -}}
+<span class="inline-flex items-center gap-1.5 border rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider {{opt $variants .Variant "default"}} {{def "" .Class}}">
+    {{- with .Dot}}<span class="w-1.5 h-1.5 rounded-full bg-current"></span>{{end -}}
+    {{.Label}}
+</span>
+{{end}}
+
+{{/* ui/card — Body(required, HTML) Title Sub Href Class Pad */}}
+{{define "ui/card"}}
+{{- $cls := printf "border border-white/5 bg-slate-900/40 rounded-2xl %s %s" (def "p-6" .Pad) (def "" .Class) -}}
+{{- if .Href -}}
+<a href="{{.Href}}" class="group block {{$cls}} hover:border-goblue-500/40 hover:bg-slate-900/70 transition-all">
+{{- else -}}
+<div class="{{$cls}}">
+{{- end}}
+    {{with .Title}}<h3 class="font-heading font-bold text-white leading-snug mb-2">{{.}}</h3>{{end}}
+    {{with .Sub}}<p class="text-sm text-slate-500 leading-relaxed mb-3">{{.}}</p>{{end}}
+    {{.Body}}
+{{- if .Href}}</a>{{else}}</div>{{end}}
+{{end}}
+
+{{/* ui/progress — Value(required) Max(required) Label Sub Class */}}
+{{define "ui/progress"}}
+{{- $pct := pct .Value .Max -}}
+<div class="{{def "" .Class}}">
+    {{if or .Label .Sub}}
+    <div class="flex items-baseline justify-between mb-2.5 font-mono text-sm">
+        <span class="text-white font-semibold">{{def "" .Label}}</span>
+        <span class="text-slate-600">{{def "" .Sub}}</span>
+    </div>
+    {{end}}
+    <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden"
+         role="progressbar" aria-valuenow="{{.Value}}" aria-valuemin="0" aria-valuemax="{{.Max}}">
+        <div class="h-full bg-goblue-500 rounded-full transition-all" style="width: {{$pct}}%; min-width: 2px;"></div>
+    </div>
+</div>
+{{end}}
+
+{{/* ui/stat — Value(required) Label Sub Class */}}
+{{define "ui/stat"}}
+<div class="border border-white/5 bg-slate-900/40 rounded-2xl p-5 {{def "" .Class}}">
+    <p class="font-mono text-3xl font-bold text-white leading-none">{{.Value}}</p>
+    <p class="text-xs uppercase tracking-wider text-slate-500 mt-2">{{.Label}}</p>
+    {{with .Sub}}<p class="text-xs text-slate-600 mt-1">{{.}}</p>{{end}}
+</div>
+{{end}}
+
+{{/* ui/empty — Title(required) Body Glyph Action(HTML) Class */}}
+{{define "ui/empty"}}
+<div class="border border-dashed border-white/10 rounded-2xl px-6 py-16 text-center {{def "" .Class}}">
+    {{with .Glyph}}<p class="font-mono text-5xl font-bold text-slate-700 mb-6">{{.}}</p>{{end}}
+    <h2 class="font-heading text-2xl font-bold text-white mb-3">{{.Title}}</h2>
+    {{with .Body}}<p class="text-slate-400 max-w-xl mx-auto leading-relaxed mb-8">{{.}}</p>{{end}}
+    {{with .Action}}<div class="flex flex-col sm:flex-row items-center justify-center gap-3">{{.}}</div>{{end}}
+</div>
+{{end}}
+
+{{/* ui/spinner — Size: sm md lg */}}
+{{define "ui/spinner"}}
+{{- $sizes := dict "sm" "w-3.5 h-3.5 border" "md" "w-5 h-5 border-2" "lg" "w-8 h-8 border-2" -}}
+<span class="inline-block {{opt $sizes .Size "md"}} border-current border-r-transparent rounded-full animate-spin align-[-0.125em]" role="status" aria-label="Loading"></span>
+{{end}}
+
+{{/* ui/skeleton — Class controls the shape, e.g. "h-4 w-40" */}}
+{{define "ui/skeleton"}}
+<span class="block bg-white/5 rounded animate-pulse {{def "h-4 w-full" .Class}}" aria-hidden="true"></span>
+{{end}}
+
+{{/* ui/section — Title(required) Sub Right(HTML) Class */}}
+{{define "ui/section"}}
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 {{def "" .Class}}">
+    <div>
+        <h2 class="font-heading text-3xl font-bold text-white tracking-tight">{{.Title}}</h2>
+        {{with .Sub}}<p class="text-slate-500 mt-2">{{.}}</p>{{end}}
+    </div>
+    {{with .Right}}<div class="shrink-0">{{.}}</div>{{end}}
+</div>
+{{end}}
+
+{{/* ui/divider — Label optional */}}
+{{define "ui/divider"}}
+{{if .Label}}
+<div class="flex items-center gap-4 my-8" role="separator">
+    <span class="h-px flex-1 bg-white/5"></span>
+    <span class="text-xs uppercase tracking-wider text-slate-600">{{.Label}}</span>
+    <span class="h-px flex-1 bg-white/5"></span>
+</div>
+{{else}}
+<hr class="border-white/5 my-8" />
+{{end}}
+{{end}}

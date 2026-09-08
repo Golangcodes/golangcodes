@@ -1,0 +1,63 @@
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time, and never cancel one halfway.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache: true
+
+      # A broken template is a compile-time failure here rather than a blank
+      # page in production.
+      - name: Test
+        run: go test ./...
+
+      # With a custom domain the site lives at the root and needs a CNAME.
+      # Without one it is served from /<repo>, and every root-relative link has
+      # to be prefixed or the CSS and JS 404.
+      #
+      # Set the SITE_DOMAIN repository variable to switch: Settings → Secrets
+      # and variables → Actions → Variables.
+      - name: Build the site
+        run: |
+          if [ -n "${{ vars.SITE_DOMAIN }}" ]; then
+            echo "building for https://${{ vars.SITE_DOMAIN }}/"
+            go run ./cmd/build -out dist -domain "${{ vars.SITE_DOMAIN }}"
+          else
+            echo "building for a project page at /${{ github.event.repository.name }}"
+            go run ./cmd/build -out dist -base "/${{ github.event.repository.name }}"
+          fi
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

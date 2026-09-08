@@ -1,0 +1,90 @@
+{{/*
+  Exercise-shaped components. These assume the vocabulary of one step: a
+  number, a prompt, hints you reveal one at a time, a test result, and a
+  solution you only see after passing.
+*/}}
+
+{{/* ui/step-card — Number(required) Title(required) Href Topic Status Class
+     Status: "" | "passed" | "attempted" */}}
+{{define "ui/step-card"}}
+<a href="{{.Href}}" class="group border border-white/5 hover:border-goblue-500/40 bg-slate-900/40 hover:bg-slate-900/70 rounded-2xl p-5 transition-all flex flex-col {{def "" .Class}}">
+    <div class="flex items-start justify-between gap-3 mb-2">
+        <span class="font-mono text-xs text-slate-600 group-hover:text-goblue-500 transition-colors">{{printf "%04d" .Number}}</span>
+        {{if eq (def "" .Status) "passed"}}{{template "ui/badge" dict "Label" "passed" "Variant" "pass"}}
+        {{else if eq (def "" .Status) "attempted"}}{{template "ui/badge" dict "Label" "attempted" "Variant" "warn"}}
+        {{else if .Topic}}<span class="text-[10px] font-medium uppercase tracking-wider text-slate-500">{{.Topic}}</span>{{end}}
+    </div>
+    <h2 class="font-heading font-bold text-white leading-snug group-hover:text-goblue-400 transition-colors">{{.Title}}</h2>
+    {{with .Sub}}<p class="mt-2 text-sm text-slate-500 leading-relaxed flex-1">{{.}}</p>{{end}}
+</a>
+{{end}}
+
+{{/* ui/prompt — Number(required) Title(required) Body(HTML) Topic Class */}}
+{{define "ui/prompt"}}
+<header class="{{def "" .Class}}">
+    <div class="flex items-center gap-3 mb-3">
+        <span class="font-mono text-sm text-goblue-500">{{printf "%04d" .Number}}</span>
+        {{with .Topic}}{{template "ui/badge" dict "Label" . "Variant" "go"}}{{end}}
+    </div>
+    <h1 class="font-heading text-3xl font-bold text-white tracking-tight leading-tight">{{.Title}}</h1>
+    {{with .Body}}<div class="mt-4 text-slate-400 leading-relaxed space-y-3">{{.}}</div>{{end}}
+</header>
+{{end}}
+
+{{/* ui/hint — Label Body(HTML) Class. Collapsed until asked for, so a hint is
+     never spoiled by being on the page. */}}
+{{define "ui/hint"}}
+<details class="group border border-white/5 bg-slate-900/40 rounded-xl overflow-hidden {{def "" .Class}}">
+    <summary class="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer text-sm font-medium text-slate-400 hover:text-white transition-colors list-none">
+        {{def "Hint" .Label}}
+        <span class="text-slate-600 group-open:rotate-180 transition-transform" aria-hidden="true">&#9662;</span>
+    </summary>
+    <div class="px-4 pb-4 pt-1 text-sm text-slate-400 leading-relaxed">{{.Body}}</div>
+</details>
+{{end}}
+
+{{/* ui/test-result — Passed(bool) Total Failed Output Class
+     The verdict panel after `go test`. */}}
+{{define "ui/test-result"}}
+<div class="border rounded-xl overflow-hidden {{if .Passed}}border-emerald-500/25 bg-emerald-500/[0.03]{{else}}border-red-500/25 bg-red-500/[0.03]{{end}} {{def "" .Class}}"
+     role="status" aria-live="polite">
+    <div class="flex items-center justify-between gap-3 px-4 py-3">
+        <span class="flex items-center gap-2.5 font-heading font-bold text-sm {{if .Passed}}text-emerald-400{{else}}text-red-400{{end}}">
+            <span class="w-5 h-5 rounded-full border border-current grid place-items-center text-[11px]" aria-hidden="true">{{if .Passed}}&check;{{else}}&times;{{end}}</span>
+            {{if .Passed}}All tests passed{{else}}{{def 1 .Failed}} of {{def 1 .Total}} failing{{end}}
+        </span>
+        {{if .Passed}}{{template "ui/badge" dict "Label" "pass" "Variant" "pass"}}{{else}}{{template "ui/badge" dict "Label" "fail" "Variant" "fail"}}{{end}}
+    </div>
+    {{with .Output}}
+    <pre class="border-t border-white/5 px-4 py-3 text-xs leading-relaxed text-slate-400 overflow-x-auto whitespace-pre-wrap max-h-64">{{.}}</pre>
+    {{end}}
+</div>
+{{end}}
+
+{{/* ui/solution — Code(required) Locked(bool) Note Class
+     Locked until the learner's own tests pass; comparing beats copying. */}}
+{{define "ui/solution"}}
+{{if .Locked}}
+<div class="border border-dashed border-white/10 rounded-xl px-5 py-8 text-center {{def "" .Class}}">
+    <p class="text-sm text-slate-500">The reference solution unlocks once your tests pass.</p>
+</div>
+{{else}}
+<div class="{{def "" .Class}}">
+    {{with .Note}}{{template "ui/note" dict "Body" . "Class" "mb-3"}}{{end}}
+    {{template "ui/code" dict "Code" .Code "File" (def "solution.go" .File)}}
+</div>
+{{end}}
+{{end}}
+
+{{/* ui/checklist — Items: slice of dicts with Label and Done. Class */}}
+{{define "ui/checklist"}}
+<ul class="space-y-2 {{def "" .Class}}">
+    {{range .Items}}
+    <li class="flex items-start gap-3 text-sm {{if .Done}}text-slate-500{{else}}text-slate-300{{end}}">
+        <span class="shrink-0 mt-0.5 w-4 h-4 rounded border grid place-items-center text-[10px] {{if .Done}}border-emerald-500/40 text-emerald-400{{else}}border-white/15 text-transparent{{end}}"
+              aria-hidden="true">&check;</span>
+        <span class="{{if .Done}}line-through{{end}}">{{.Label}}</span>
+    </li>
+    {{end}}
+</ul>
+{{end}}

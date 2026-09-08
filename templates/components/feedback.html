@@ -1,0 +1,65 @@
+{{/*
+  Feedback: inline alerts, transient toasts, and a modal.
+
+  Never use window.alert/confirm/prompt — they freeze the page for automation
+  and cannot be styled. UI.toast() and ui/modal cover both cases.
+*/}}
+
+{{/* ui/alert — Body(required) Title Variant Dismissible Class
+     Variants: info success warn error */}}
+{{define "ui/alert"}}
+{{- $v := def "info" .Variant -}}
+{{- $skin := dict
+    "info"    "border-sky-500/25 bg-sky-500/[0.07] text-sky-300"
+    "success" "border-emerald-500/25 bg-emerald-500/[0.07] text-emerald-300"
+    "warn"    "border-amber-500/25 bg-amber-500/[0.07] text-amber-300"
+    "error"   "border-red-500/25 bg-red-500/[0.07] text-red-300" -}}
+{{- $glyph := dict "info" "i" "success" "✓" "warn" "!" "error" "✕" -}}
+<div class="flex items-start gap-3 border rounded-xl px-4 py-3.5 {{opt $skin $v "info"}} {{def "" .Class}}"
+     role="{{if eq $v "error"}}alert{{else}}status{{end}}" {{if .Dismissible}}data-ui-dismiss-target{{end}}>
+    <span class="shrink-0 w-5 h-5 mt-0.5 rounded-full border border-current grid place-items-center text-[11px] font-bold"
+          aria-hidden="true">{{opt $glyph $v "info"}}</span>
+    <div class="flex-1 min-w-0">
+        {{with .Title}}<p class="font-semibold text-sm mb-0.5">{{.}}</p>{{end}}
+        <p class="text-sm leading-relaxed opacity-90">{{.Body}}</p>
+    </div>
+    {{if .Dismissible}}
+    <button type="button" class="shrink-0 opacity-50 hover:opacity-100 transition-opacity px-1"
+        data-ui-dismiss aria-label="Dismiss">&times;</button>
+    {{end}}
+</div>
+{{end}}
+
+{{/* ui/toast-host — the stack toasts land in. Include once, in layout.html. */}}
+{{define "ui/toast-host"}}
+<div id="ui-toasts" class="fixed bottom-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none"
+     role="region" aria-label="Notifications" aria-live="polite"></div>
+{{end}}
+
+{{/* ui/modal — Id(required) Title Body(HTML) Footer(HTML) Size
+     Open with UI.modal.open("id"), close with Esc, backdrop, or [data-ui-modal-close]. */}}
+{{define "ui/modal"}}
+{{- $sizes := dict "sm" "max-w-sm" "md" "max-w-lg" "lg" "max-w-2xl" -}}
+<div id="{{.Id}}" class="fixed inset-0 z-[90] hidden items-center justify-center p-4" data-ui-modal
+     role="dialog" aria-modal="true" {{with .Title}}aria-labelledby="{{$.Id}}-title"{{end}}>
+    <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" data-ui-modal-close></div>
+    <div class="relative w-full {{opt $sizes .Size "md"}} border border-white/10 bg-slate-900 rounded-2xl shadow-2xl">
+        <div class="flex items-start justify-between gap-4 px-6 pt-5 pb-3">
+            {{with .Title}}<h2 id="{{$.Id}}-title" class="font-heading text-lg font-bold text-white">{{.}}</h2>{{end}}
+            <button type="button" class="text-slate-500 hover:text-white transition-colors -mt-1 px-1 text-xl leading-none"
+                data-ui-modal-close aria-label="Close">&times;</button>
+        </div>
+        <div class="px-6 pb-5 text-sm text-slate-400 leading-relaxed">{{.Body}}</div>
+        {{with .Footer}}
+        <div class="flex items-center justify-end gap-2 border-t border-white/5 px-6 py-4">{{.}}</div>
+        {{end}}
+    </div>
+</div>
+{{end}}
+
+{{/* ui/note — a quiet inline aside, for hints that are not warnings */}}
+{{define "ui/note"}}
+<p class="border-l-2 border-goblue-500/40 pl-4 py-1 text-sm text-slate-400 leading-relaxed {{def "" .Class}}">
+    {{.Body}}
+</p>
+{{end}}

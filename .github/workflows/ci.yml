@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache: true
+
+      - name: Check formatting
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "These files need gofmt:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Build
+        run: go build ./...
+
+      # Once exercises land this is what proves each one: the stub must fail its
+      # tests and the reference solution must pass them.
+      - name: Test
+        run: go test ./...
+
+  # The image is how this ships, so a broken Dockerfile should fail the PR that
+  # broke it rather than the next deploy.
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build the runtime image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: runtime
+          load: true
+          tags: golang-codes:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Boot it and check the health endpoint
+        run: |
+          docker run -d --name ci -p 8080:8080 golang-codes:ci
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/healthz; then
+              docker rm -f ci
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "the container never became healthy"
+          docker logs ci
+          exit 1

@@ -1,0 +1,126 @@
+{{define "layout"}}<!doctype html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{.Title}}</title>
+    <meta name="description" content="{{.Description}}" />
+    <meta name="theme-color" content="#00ADD8" />
+    <link rel="canonical" href="https://golang.codes{{.Canonical}}" />
+
+    <meta property="og:title" content="{{.Title}}" />
+    <meta property="og:description" content="{{.Description}}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/static/golangcodeslogo.jpeg" />
+
+    <link rel="icon" type="image/jpeg" href="/static/golangcodeslogo.jpeg" />
+    <link rel="apple-touch-icon" href="/static/golangcodeslogo.jpeg" />
+    <link rel="manifest" href="/static/manifest.json" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                        heading: ["Plus Jakarta Sans", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"],
+                    },
+                    colors: {
+                        goblue: {
+                            50: "#f0f9ff",
+                            100: "#e0f2fe",
+                            400: "#29b6f6",
+                            500: "#00ADD8",
+                            600: "#007D9C",
+                            700: "#005a70",
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Minimal Go syntax highlighting, applied by static/highlight.js */
+        .tok-kw { color: #ff7b72; }
+        .tok-str { color: #a5d6ff; }
+        .tok-com { color: #8b949e; font-style: italic; }
+        .tok-num { color: #79c0ff; }
+        .tok-fn  { color: #d2a8ff; }
+        .tok-typ { color: #7ee787; }
+
+        code, pre { font-family: "JetBrains Mono", monospace; }
+    </style>
+    <link rel="stylesheet" href="/static/ui.css" />
+    {{block "head" .}}{{end}}
+</head>
+
+<body class="bg-slate-950 text-slate-200 font-sans antialiased {{.BodyClass}}">
+    <nav class="{{if .FixedNav}}fixed top-0 w-full{{end}} z-40 border-b border-white/5 bg-slate-950/85 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-4">
+            <a href="/" class="flex items-center gap-3 group shrink-0">
+                <img src="/static/golangcodeslogo.jpeg" alt="Golang Codes"
+                    class="w-8 h-8 rounded-lg group-hover:scale-105 transition-transform" />
+                <span class="font-heading font-bold text-lg tracking-tight">
+                    <span class="text-goblue-500">Golang</span><span class="text-slate-300">Codes</span>
+                </span>
+            </a>
+            <div class="flex items-center gap-1 sm:gap-2 text-sm">
+                <a href="/steps"
+                    class="px-3 py-1.5 rounded-lg font-medium transition-colors {{if eq .Nav "steps"}}bg-white/5 text-white{{else}}text-slate-400 hover:text-white{{end}}">
+                    Steps
+                </a>
+                {{if .Dev}}
+                <a href="/components"
+                    class="px-3 py-1.5 rounded-lg font-medium transition-colors {{if eq .Nav "components"}}bg-white/5 text-white{{else}}text-slate-400 hover:text-white{{end}}">
+                    Components
+                </a>
+                {{end}}
+                <a href="https://github.com/Golangcodes/golangcodes" target="_blank" rel="noopener"
+                    class="hidden sm:block px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-colors">
+                    GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    {{template "content" .}}
+
+    {{block "footer" .}}
+    <footer class="border-t border-white/5 py-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
+            <span class="text-slate-500">&copy; 2025 Golang Codes. MIT License.</span>
+            <div class="flex items-center gap-5">
+                <a href="/steps" class="text-slate-500 hover:text-white transition-colors">Steps</a>
+                <a href="https://github.com/Golangcodes/golangcodes" target="_blank" rel="noopener"
+                    class="text-slate-500 hover:text-white transition-colors">Contribute</a>
+                <a href="https://buymeacoffee.com/hersi" target="_blank" rel="noopener"
+                    class="text-slate-500 hover:text-pink-400 transition-colors">&#9829; Support</a>
+            </div>
+        </div>
+    </footer>
+    {{end}}
+
+    {{template "ui/toast-host" .}}
+
+    <script src="/static/highlight.js"></script>
+    <script src="/static/ui.js"></script>
+    {{block "scripts" .}}{{end}}
+</body>
+
+</html>{{end}}

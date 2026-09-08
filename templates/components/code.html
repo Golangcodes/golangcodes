@@ -1,0 +1,96 @@
+{{/*
+  Code display, editing, running and sharing.
+
+  ui/code     read-only block with a copy button
+  ui/editor   editable Go buffer: line numbers, Tab, Cmd+Enter to run
+  ui/output   the result pane an editor writes into
+  ui/share    copy a go.dev/play/p link for the current buffer
+
+  The interactive parts are wired by static/ui.js off data- attributes, so a
+  block dropped anywhere on the page works with no extra script.
+*/}}
+
+{{/* ui/code — Code(required) File Lang Lines Class */}}
+{{define "ui/code"}}
+<figure class="border border-white/5 bg-slate-900/60 rounded-xl overflow-hidden {{def "" .Class}}">
+    <figcaption class="flex items-center justify-between gap-3 border-b border-white/5 px-4 py-2">
+        <span class="font-mono text-xs text-slate-500">{{def "go" .File}}</span>
+        <button type="button" class="text-xs text-slate-500 hover:text-goblue-400 transition-colors px-2 py-1 rounded"
+            data-ui-copy aria-label="Copy code">Copy</button>
+    </figcaption>
+    <div class="overflow-x-auto">
+        <pre class="p-4 text-sm leading-relaxed{{if .Lines}} ui-numbered{{end}}"><code data-ui-highlight data-ui-copy-source>{{.Code}}</code></pre>
+    </div>
+</figure>
+{{end}}
+
+{{/* ui/editor — Name Code File Height Class RunLabel NoRun NoShare
+     Renders a self-contained editor: buffer, toolbar, and its output pane. */}}
+{{define "ui/editor"}}
+{{- $id := def "editor" .Name -}}
+<div class="border border-white/5 bg-slate-900/60 rounded-xl overflow-hidden {{def "" .Class}}"
+     data-ui-editor data-ui-editor-id="{{$id}}">
+    <div class="flex items-center justify-between gap-3 border-b border-white/5 px-4 py-2">
+        <span class="font-mono text-xs text-slate-500">{{def "main.go" .File}}</span>
+        <div class="flex items-center gap-1">
+            <button type="button" class="text-xs text-slate-500 hover:text-goblue-400 transition-colors px-2 py-1 rounded"
+                data-ui-copy aria-label="Copy code">Copy</button>
+            <button type="button" class="text-xs text-slate-500 hover:text-goblue-400 transition-colors px-2 py-1 rounded"
+                data-ui-editor-reset aria-label="Reset to the original code">Reset</button>
+            {{if not .NoShare}}
+            <button type="button" class="text-xs text-slate-500 hover:text-goblue-400 transition-colors px-2 py-1 rounded"
+                data-ui-share aria-label="Copy a shareable playground link">Share</button>
+            {{end}}
+            {{if not .NoRun}}
+            {{template "ui/button" dict "Label" (def "Run" .RunLabel) "Size" "sm" "Attrs" (attrs "data-ui-run")}}
+            {{end}}
+        </div>
+    </div>
+
+    <div class="ui-editor-body" style="height: {{def "18rem" .Height}}">
+        <div class="ui-editor-gutter" data-ui-editor-gutter aria-hidden="true"></div>
+        <textarea class="ui-editor-input" spellcheck="false" autocomplete="off" autocapitalize="off"
+            autocorrect="off" wrap="off" aria-label="{{def "Go code editor" .Label}}"
+            data-ui-editor-input name="{{$id}}">{{def "" .Code}}</textarea>
+    </div>
+
+    {{if not .NoRun}}{{template "ui/output" dict "For" $id}}{{end}}
+</div>
+{{end}}
+
+{{/* ui/output — For(editor id) Class. Empty until something runs. */}}
+{{define "ui/output"}}
+<div class="border-t border-white/5 hidden {{def "" .Class}}" data-ui-output data-ui-output-for="{{def "" .For}}">
+    <div class="flex items-center justify-between gap-3 px-4 py-2 border-b border-white/5">
+        <span class="font-mono text-xs text-slate-500">output</span>
+        <span data-ui-output-status></span>
+    </div>
+    <pre class="p-4 text-sm leading-relaxed overflow-x-auto max-h-64 text-slate-300 whitespace-pre-wrap"
+        data-ui-output-body role="status" aria-live="polite"></pre>
+</div>
+{{end}}
+
+{{/* ui/share — Code(required) Label Class. Standalone share button for a fixed snippet. */}}
+{{define "ui/share"}}
+<div class="{{def "" .Class}}" data-ui-share-block>
+    <textarea class="sr-only" data-ui-editor-input aria-hidden="true" tabindex="-1">{{.Code}}</textarea>
+    {{template "ui/button" dict
+        "Label" (def "Share this snippet" .Label)
+        "Variant" "secondary" "Size" "sm"
+        "Attrs" (attrs "data-ui-share")}}
+</div>
+{{end}}
+
+{{/* ui/diff — Want(required) Got(required) Class. Expected against actual. */}}
+{{define "ui/diff"}}
+<div class="grid gap-3 sm:grid-cols-2 {{def "" .Class}}">
+    <div class="border border-emerald-500/20 bg-emerald-500/[0.03] rounded-xl overflow-hidden">
+        <p class="border-b border-emerald-500/20 px-4 py-2 font-mono text-xs text-emerald-400">want</p>
+        <pre class="p-4 text-sm text-slate-300 overflow-x-auto whitespace-pre-wrap">{{.Want}}</pre>
+    </div>
+    <div class="border border-red-500/20 bg-red-500/[0.03] rounded-xl overflow-hidden">
+        <p class="border-b border-red-500/20 px-4 py-2 font-mono text-xs text-red-400">got</p>
+        <pre class="p-4 text-sm text-slate-300 overflow-x-auto whitespace-pre-wrap">{{.Got}}</pre>
+    </div>
+</div>
+{{end}}

@@ -1,0 +1,33 @@
+# Version control and CI
+.git
+.gitignore
+.github
+
+# Build artifacts and hot-reload scratch space
+/server
+/app
+tmp/
+tmp-docker/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Local tooling and editor state
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Docs and meta: not needed to run the server, and changing one should not
+# invalidate the build cache.
+*.md
+LICENSE
+compose.yaml
+Dockerfile
+.dockerignore
+.air.toml

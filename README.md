@@ -1,160 +1,111 @@
-# 🐹 Golang Codes — Learn Go Interactively
+# Golang Codes
 
-An open-source, interactive Go learning platform with a built-in code editor, gamification, and community-driven content.
+1000 Go exercises, written one at a time.
 
-![Go Version](https://img.shields.io/badge/Go-1.23-00ADD8?logo=go&logoColor=white)
+![Go](https://img.shields.io/badge/Go-1.24-00ADD8?logo=go&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
-![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
 
----
+**0 of 1000 published.**
 
-## ✨ Features
+## Run it
 
-- **Interactive Monaco Code Editor** — Write, edit, and run Go code directly in the browser
-- **Click-to-Edit Code Blocks** — Click any code example in a lesson to instantly load it into the editor
-- **Live Code Execution** — Run Go code server-side with a secure sandboxed `go run` command
-- **Gamification & XP System** — Earn XP for reading lessons and running code
-- **Progress Tracking** — Track completed lessons, read counts, and coding progress via localStorage
-- **Dark Mode** — Full dark/light theme toggle with persistent preference
-- **Syntax Highlighting** — PrismJS-powered highlighting for all Go code examples
-- **Community Contributions** — Edit any lesson directly on GitHub via the "Edit this page" button
-- **Responsive Design** — Built with Tailwind CSS for a premium, mobile-friendly experience
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- [Go 1.23+](https://go.dev/dl/)
-- [Air](https://github.com/air-verse/air) (for hot-reloading during development)
-
-### Installation
+Needs [Go 1.24+](https://go.dev/dl/).
 
 ```bash
-# Clone the repo
-git clone https://github.com/Golangcodes/golangcodes
-cd golang.codes
-
-# Install Air for hot-reloading
-go install github.com/air-verse/air@v1.52.3
-
-# Start the development server
-make dev
+make tools   # installs air, the hot-reload runner
+make dev     # http://localhost:8080
 ```
 
-The app will be available at **http://localhost:8080**.
+Or in Docker, with no Go toolchain: `make up-dev`.
 
-### Production Build
+`make help` lists the rest. `make test`, `make fmt`, `make vet` before pushing.
+
+## Deploy
+
+The site ships as static files on GitHub Pages. `cmd/build` renders every page
+to disk from `handlers.Site()` — the same list the dev server serves, so the
+two cannot drift.
 
 ```bash
-go build -o server .
-PORT=8080 ./server
+make site      # render into dist/
+make preview   # render, then serve dist/ exactly as Pages will
 ```
 
-### Docker
+Pushing to `main` runs `.github/workflows/pages.yml`, which tests, builds and
+deploys. It picks the right shape on its own:
 
-```bash
-docker build -t golang-codes .
-docker run -p 8080:8080 golang-codes
+| `SITE_DOMAIN` repo variable | Result |
+|---|---|
+| set, e.g. `golang.codes` | Built for the domain root, `CNAME` written |
+| unset | Built for `<user>.github.io/<repo>`, every root-relative link prefixed |
+
+Set it under **Settings → Secrets and variables → Actions → Variables**, and
+point the DNS at GitHub before you do — a `CNAME` for a domain that does not
+resolve takes the site offline at both addresses.
+
+There is no server in production. Run and Share call the Go playground straight
+from the browser (it sends `access-control-allow-origin: *`), so nothing has to
+be hosted, nothing sleeps, and a playground link outlives this site.
+
+`Dockerfile`, `compose.yaml` and `/healthz` are now only for running the dev
+server in a container. Nothing deploys with them.
+
+## Components
+
+Every UI component is a Go template in `templates/components/`, parsed into
+every page. There is nothing to import — call one and go:
+
+```gotemplate
+{{template "ui/button" dict "Label" "Run" "Variant" "primary"}}
+{{template "ui/editor" dict "Name" "step-0001" "Code" .Starter}}
+{{template "ui/test-result" dict "Passed" false "Failed" 1 "Total" 3}}
 ```
 
----
+**Run the site and open [/components](http://localhost:8080/components)** — it
+renders every component live with the exact call to copy.
 
-## 📁 Project Structure
+The gallery is **local only**. Its page is marked `Private` in
+`handlers/site.go`, so `cmd/build` leaves it out and `layout.html` hides its nav
+link unless `handlers.Dev` is set, which only `main.go` does. Tests assert it
+never reaches a build. Mark any other internal page the same way.
+
+| File | Components |
+|------|-----------|
+| `primitives.html` | button, badge, card, progress, stat, empty, spinner, skeleton, section, divider |
+| `forms.html` | input, textarea, select, checkbox, radio-group, toggle, search |
+| `code.html` | code, editor, output, share, diff |
+| `feedback.html` | alert, toast-host, modal, note |
+| `navigation.html` | tabs, breadcrumb, pagination, prevnext, back |
+| `exercise.html` | step-card, prompt, hint, test-result, solution, checklist |
+
+Behaviour is wired from `data-` attributes by `static/ui.js`, so a component
+dropped into any template works with no extra script. Its public surface:
+
+```js
+UI.toast("Copied", {variant: "success"})   // never window.alert
+UI.copy(text)                              // clipboard, with an http:// fallback
+UI.modal.open("id") / UI.modal.close()
+UI.run("editor-id")                        // compiles on the Go playground
+UI.share("editor-id")                      // copies a go.dev/play/p link
+```
+
+## Layout
 
 ```
-golang.codes/
-├── Go/                    # Markdown lesson files (the syllabus)
-│   ├── Introduction.md
-│   ├── Variables in Go.md
-│   ├── Data Structures.md
-│   └── ...
-├── handlers/
-│   ├── pages.go           # Route handlers for lessons & homepage
-│   └── run.go             # Secure code execution endpoint
-├── static/
-│   ├── main.js            # App logic (editor, gamification, HTMX)
-│   ├── storage.js         # Storage API abstraction layer
-│   └── gopher.webp        # Gopher mascot
-├── templates/
-│   └── index.html         # Main HTML template
-├── main.go                # Server entry point
-├── Dockerfile             # Production Docker image
-├── Makefile               # Dev commands
-└── .air.toml              # Air hot-reload config
+main.go                 the dev server
+cmd/build/              renders the site to static files
+handlers/site.go        every page, once, for both of the above
+handlers/templates.go   the template funcs components are built on
+templates/components/   the component library
+templates/              layout.html is the shell; the pages fill it in
+static/ui.js            component behaviour
+static/ui.css           editor gutter, toast motion
 ```
 
----
+Exercises will live in `exercises/` as real Go packages. That directory does not
+exist yet, so `publishedSteps` in `handlers/pages.go` returns nothing and the
+site reports zero.
 
-## 📝 Lesson Syllabus
+## License
 
-The course covers Go from fundamentals to advanced topics:
-
-1. Introduction
-2. Variables in Go
-3. Data Structures
-4. Conditionals in Go
-5. Loops
-6. Functions
-7. Slice
-8. Maps
-9. Pointers
-10. Structs
-11. Packages and Modules
-12. Interfaces in Go
-13. Errors
-14. Go Symbols
-15. Go Standard Library
-16. Channels in Go
-17. Mutexes in Go
-18. Context Package
-19. Generics in Go
-20. Enums in Go
-21. Understanding Allocations in Go
-22. Design Patterns in Go
-23. Go Best Lessons
-24. Community Resources
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Whether it's fixing a typo, improving an explanation, or adding a new lesson — every contribution matters.
-
-Please read our [Contributing Guide](CONTRIBUTING.md) before submitting a PR.
-
-### Quick Contribution
-
-1. Find a lesson page on the site
-2. Click **"Edit this page on GitHub"** at the bottom
-3. Make your changes to the Markdown file
-4. Submit a Pull Request
-
----
-
-## 🏗️ Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Backend | Go `net/http` |
-| Frontend | HTMX, Tailwind CSS |
-| Code Editor | Monaco Editor |
-| Syntax Highlighting | PrismJS |
-| Markdown Rendering | Goldmark |
-| Hot Reload | Air |
-| Deployment | Docker / Railway |
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
-
----
-
-## ⭐ Support
-
-If you find this project useful, please give it a star! It helps others discover the project.
-
-Built with ❤️ by the Go community.
+MIT — see [LICENSE](LICENSE).

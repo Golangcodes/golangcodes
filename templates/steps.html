@@ -1,0 +1,27 @@
+{{define "content"}}
+<main class="pt-16 flex-1">
+    <section class="max-w-6xl mx-auto px-6 pt-14 pb-10">
+        <h1 class="font-heading text-4xl md:text-5xl font-extrabold text-white tracking-tight">
+            {{.Goal}} steps.
+        </h1>
+
+        {{template "ui/progress" dict
+            "Value" .Published "Max" .Goal
+            "Label" (printf "%d published" .Published)
+            "Sub"   (printf "%d planned" .Goal)
+            "Class" "mt-10 max-w-md"}}
+    </section>
+
+    <section class="max-w-6xl mx-auto px-6 pb-24">
+        {{if .Steps}}
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {{range .Steps}}
+            {{template "ui/step-card" dict "Number" .Number "Title" .Title "Href" .Path}}
+            {{end}}
+        </div>
+        {{else}}
+        {{template "ui/empty" dict "Glyph" "0000" "Title" "No steps published yet"}}
+        {{end}}
+    </section>
+</main>
+{{end}}

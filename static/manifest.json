@@ -1,10 +1,10 @@
 {
     "name": "Golang Codes",
     "short_name": "Golang",
-    "description": "Learn Go interactively with a built-in code editor, lessons, and gamified progress tracking.",
-    "start_url": "/",
+    "description": "1000 Go exercises.",
+    "start_url": "/steps",
     "display": "standalone",
-    "background_color": "#0f172a",
+    "background_color": "#020617",
     "theme_color": "#00ADD8",
     "icons": [
         {

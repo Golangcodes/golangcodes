@@ -2,6 +2,7 @@
 /server
 /app
 /tmp/
+/tmp-docker/
 
 # Go
 *.exe
@@ -28,3 +29,7 @@ Thumbs.db
 # Lock files (optional — remove if you want to track these)
 # bun.lock
 # package-lock.json
+
+# Static site output; GitHub Actions builds and deploys it.
+dist/
+docs/

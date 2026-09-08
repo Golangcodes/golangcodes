@@ -1,0 +1,268 @@
+{{define "demo-open"}}
+<section id="{{.Anchor}}" class="scroll-mt-24 mb-10">
+    <div class="flex items-baseline justify-between gap-4 mb-3">
+        <h3 class="font-mono text-sm text-goblue-400">{{.Name}}</h3>
+        {{with .Note}}<span class="text-xs text-slate-600 text-right">{{.}}</span>{{end}}
+    </div>
+    <div class="border border-white/5 rounded-2xl overflow-hidden">
+        <div class="p-6 bg-slate-950/60">
+{{end}}
+
+{{define "demo-close"}}
+        </div>
+        {{template "ui/code" dict "File" "call" "Code" .Call "Class" "border-0 border-t border-white/5 rounded-none"}}
+    </div>
+</section>
+{{end}}
+
+{{define "content"}}
+<main class="pt-16 flex-1">
+    <section class="max-w-4xl mx-auto px-6 pt-14 pb-8">
+        <h1 class="font-heading text-4xl font-extrabold text-white tracking-tight">Components</h1>
+        <p class="text-slate-400 mt-4 leading-relaxed">
+            Every component in this project, rendered by the same templates the site uses. Copy the
+            call underneath each one. They live in <code class="text-goblue-400">templates/components/</code>
+            and are parsed into every page, so there is nothing to import.
+        </p>
+        {{template "ui/note" dict "Class" "mt-6" "Body" "Components take a dict. Keys are optional unless the source marks them required, and an unknown variant falls back to the default rather than rendering an error."}}
+    </section>
+
+    <div class="max-w-4xl mx-auto px-6 pb-24">
+
+    {{template "ui/divider" dict "Label" "primitives"}}
+
+    {{template "demo-open" dict "Name" "ui/button" "Anchor" "button" "Note" "Renders an <a> when Href is set"}}
+        <div class="flex flex-wrap items-center gap-3">
+            {{template "ui/button" dict "Label" "Primary"}}
+            {{template "ui/button" dict "Label" "Secondary" "Variant" "secondary"}}
+            {{template "ui/button" dict "Label" "Ghost" "Variant" "ghost"}}
+            {{template "ui/button" dict "Label" "Danger" "Variant" "danger"}}
+            {{template "ui/button" dict "Label" "Success" "Variant" "success"}}
+        </div>
+        <div class="flex flex-wrap items-center gap-3 mt-4">
+            {{template "ui/button" dict "Label" "Small" "Size" "sm"}}
+            {{template "ui/button" dict "Label" "Medium" "Size" "md"}}
+            {{template "ui/button" dict "Label" "Large" "Size" "lg"}}
+            {{template "ui/button" dict "Label" "Disabled" "Disabled" true}}
+            {{template "ui/button" dict "Label" "Loading" "Loading" true "Variant" "secondary"}}
+        </div>
+    {{template "demo-close" dict "Call" (index $.Calls "ui/button")}}
+
+    {{template "demo-open" dict "Name" "ui/badge" "Anchor" "badge"}}
+        <div class="flex flex-wrap items-center gap-2">
+            {{template "ui/badge" dict "Label" "default"}}
+            {{template "ui/badge" dict "Label" "go" "Variant" "go"}}
+            {{template "ui/badge" dict "Label" "passed" "Variant" "pass"}}
+            {{template "ui/badge" dict "Label" "failed" "Variant" "fail"}}
+            {{template "ui/badge" dict "Label" "attempted" "Variant" "warn"}}
+            {{template "ui/badge" dict "Label" "new" "Variant" "info" "Dot" true}}
+        </div>
+    {{template "demo-close" dict "Call" (index $.Calls "ui/badge")}}
+
+    {{template "demo-open" dict "Name" "ui/card" "Anchor" "card"}}
+        <div class="grid gap-4 sm:grid-cols-2">
+            {{template "ui/card" dict "Title" "Slices share memory" "Sub" "Appending can mutate what someone else is holding." "Body" (safe "")}}
+            {{template "ui/card" dict "Href" "#card" "Title" "A card that links" "Body" (safe "<p class=\"text-sm text-slate-500\">Hover it.</p>")}}
+        </div>
+    {{template "demo-close" dict "Call" (index $.Calls "ui/card")}}
+
+    {{template "demo-open" dict "Name" "ui/progress" "Anchor" "progress" "Note" "Percent is computed, not passed"}}
+        {{template "ui/progress" dict "Value" .Progress "Max" .Goal "Label" "120 published" "Sub" "1000 planned"}}
+    {{template "demo-close" dict "Call" (index $.Calls "ui/progress")}}
+
+    {{template "demo-open" dict "Name" "ui/stat" "Anchor" "stat"}}
+        <div class="grid gap-3 sm:grid-cols-3">
+            {{template "ui/stat" dict "Value" "0120" "Label" "published" "Sub" "of 1000"}}
+            {{template "ui/stat" dict "Value" "88%" "Label" "passing"}}
+            {{template "ui/stat" dict "Value" "14" "Label" "topics"}}
+        </div>
+    {{template "demo-close" dict "Call" (index $.Calls "ui/stat")}}
+
+    {{template "demo-open" dict "Name" "ui/empty" "Anchor" "empty"}}
+        {{template "ui/empty" dict "Glyph" "0000" "Title" "No steps published yet" "Body" "Step 1 goes up first."}}
+    {{template "demo-close" dict "Call" (index $.Calls "ui/empty")}}
+
+    {{template "demo-open" dict "Name" "ui/spinner  ui/skeleton" "Anchor" "loading"}}
+        <div class="flex items-center gap-6 text-slate-400">
+            {{template "ui/spinner" dict "Size" "sm"}}
+            {{template "ui/spinner" dict "Size" "md"}}
+            {{template "ui/spinner" dict "Size" "lg"}}
+        </div>
+        <div class="space-y-2 mt-6 max-w-xs">
+            {{template "ui/skeleton" dict "Class" "h-4 w-3/4"}}
+            {{template "ui/skeleton" dict "Class" "h-4 w-1/2"}}
+            {{template "ui/skeleton" dict "Class" "h-20 w-full rounded-xl"}}
+        </div>
+    {{template "demo-close" dict "Call" (index $.Calls "ui/spinner")}}
+
+    {{template "demo-open" dict "Name" "ui/section  ui/divider" "Anchor" "section"}}
+        {{template "ui/section" dict "Title" "The steps" "Sub" "In order, or by topic."}}
+        {{template "ui/divider" dict "Label" "or"}}
+        {{template "ui/divider" dict}}
+    {{template "demo-close" dict "Call" (index $.Calls "ui/section")}}
+
+    {{template "ui/divider" dict "Label" "forms"}}
+
+    {{template "demo-open" dict "Name" "ui/input" "Anchor" "input" "Note" "Label, hint and error are built in"}}
+        <div class="space-y-5 max-w-md">
+            {{template "ui/input" dict "Name" "answer" "Label" "Your answer" "Placeholder" "len(\"héllo\")" "Hint" "Bytes, not runes."}}
+            {{template "ui/input" dict "Name" "broken" "Label" "With an error" "Value" "5" "Error" "That counts runes."}}
+        </div>
+    {{template "demo-close" dict "Call" (index $.Calls "ui/input")}}
+
+    {{template "demo-open" dict "Name" "ui/textarea" "Anchor" "textarea"}}
+        <div class="max-w-md">
+            {{template "ui/textarea" dict "Name" "notes" "Label" "In your own words" "Rows" 3 "Placeholder" "If you cannot explain it, you have not finished."}}
+        </div>
+    {{template "demo-close" dict "Call" (index $.Calls "ui/textarea")}}
+
+    {{template "demo-open" dict "Name" "ui/select" "Anchor" "select"}}
+        <div class="max-w-md">
+            {{template "ui/select" dict "Name" "topic" "Label" "Topic" "Value" "slices" "Options" (slice
+                (dict "Value" "basics" "Label" "Basics")
+                (dict "Value" "slices" "Label" "Slices")
+                (dict "Value" "maps" "Label" "Maps"))}}
+        </div>
+    {{template "demo-close" dict "Call" (index $.Calls "ui/select")}}
+
+    {{template "demo-open" dict "Name" "ui/checkbox  ui/toggle" "Anchor" "checkbox"}}
+        <div class="space-y-4 max-w-md">
+            {{template "ui/checkbox" dict "Name" "ran" "Label" "I ran the tests" "Checked" true}}
+            {{template "ui/checkbox" dict "Name" "read" "Label" "I read the spec section" "Hint" "It is shorter than it looks."}}
+            {{template "ui/toggle" dict "Name" "hints" "Label" "Show hints" "Hint" "Off by default." "Checked" true}}
+        </div>
+    {{template "demo-close" dict "Call" (index $.Calls "ui/checkbox")}}
+
+    {{template "demo-open" dict "Name" "ui/radio-group" "Anchor" "radio"}}
+        <div class="max-w-md">
+            {{template "ui/radio-group" dict "Name" "guess" "Legend" "What does len(\"héllo\") print?" "Value" "b" "Options" (slice
+                (dict "Value" "a" "Label" "5")
+                (dict "Value" "b" "Label" "6" "Hint" "é is two bytes in UTF-8")
+                (dict "Value" "c" "Label" "It does not compile"))}}
+        </div>
+    {{template "demo-close" dict "Call" (index $.Calls "ui/radio-group")}}
+
+    {{template "demo-open" dict "Name" "ui/search" "Anchor" "search"}}
+        <div class="max-w-md">{{template "ui/search" dict "Placeholder" "Search 1000 steps"}}</div>
+    {{template "demo-close" dict "Call" (index $.Calls "ui/search")}}
+
+    {{template "ui/divider" dict "Label" "code"}}
+
+    {{template "demo-open" dict "Name" "ui/code" "Anchor" "code" "Note" "Copy button wired automatically"}}
+        {{template "ui/code" dict "File" "main.go" "Code" .Sample}}
+    {{template "demo-close" dict "Call" (index $.Calls "ui/code")}}
+
+    {{template "demo-open" dict "Name" "ui/editor" "Anchor" "editor" "Note" "Tab indents · Cmd/Ctrl+Enter runs"}}
+        {{template "ui/editor" dict "Name" "demo" "File" "main.go" "Code" .Starter "Height" "15rem"}}
+    {{template "demo-close" dict "Call" (index $.Calls "ui/editor")}}
+
+    {{template "demo-open" dict "Name" "ui/share" "Anchor" "share" "Note" "Posts to /api/share, copies a go.dev link"}}
+        {{template "ui/share" dict "Code" .Sample}}
+    {{template "demo-close" dict "Call" (index $.Calls "ui/share")}}
+
+    {{template "demo-open" dict "Name" "ui/diff" "Anchor" "diff"}}
+        {{template "ui/diff" dict "Want" "5" "Got" "6"}}
+    {{template "demo-close" dict "Call" (index $.Calls "ui/diff")}}
+
+    {{template "ui/divider" dict "Label" "feedback"}}
+
+    {{template "demo-open" dict "Name" "ui/alert" "Anchor" "alert"}}
+        <div class="space-y-3">
+            {{template "ui/alert" dict "Variant" "info" "Body" "The spec settles this in one line."}}
+            {{template "ui/alert" dict "Variant" "success" "Title" "All tests passed" "Body" "The reference solution is unlocked."}}
+            {{template "ui/alert" dict "Variant" "warn" "Title" "Careful" "Body" "len counts bytes, not runes." "Dismissible" true}}
+            {{template "ui/alert" dict "Variant" "error" "Title" "Build failed" "Body" "undefined: fmt.Printn"}}
+        </div>
+    {{template "demo-close" dict "Call" (index $.Calls "ui/alert")}}
+
+    {{template "demo-open" dict "Name" "UI.toast" "Anchor" "toast" "Note" "JavaScript, not a template"}}
+        <div class="flex flex-wrap gap-3">
+            {{template "ui/button" dict "Label" "info" "Variant" "secondary" "Size" "sm" "Attrs" (attrs "onclick=\"UI.toast('Saved')\"")}}
+            {{template "ui/button" dict "Label" "success" "Variant" "secondary" "Size" "sm" "Attrs" (attrs "onclick=\"UI.toast('All tests passed', {variant:'success'})\"")}}
+            {{template "ui/button" dict "Label" "warn" "Variant" "secondary" "Size" "sm" "Attrs" (attrs "onclick=\"UI.toast('Unsaved changes', {variant:'warn'})\"")}}
+            {{template "ui/button" dict "Label" "error" "Variant" "secondary" "Size" "sm" "Attrs" (attrs "onclick=\"UI.toast('Build failed', {variant:'error'})\"")}}
+        </div>
+    {{template "demo-close" dict "Call" (index $.Calls "UI.toast")}}
+
+    {{template "demo-open" dict "Name" "ui/modal" "Anchor" "modal" "Note" "Esc and backdrop close it"}}
+        {{template "ui/button" dict "Label" "Open the dialog" "Variant" "secondary" "Attrs" (attrs "data-ui-modal-open=\"demo-modal\"")}}
+        {{template "ui/modal" dict "Id" "demo-modal" "Title" "Reset your answer?"
+            "Body" (safe "<p>This clears the buffer and restores the original stub. It cannot be undone.</p>")
+            "Footer" (safe "<button type=\"button\" data-ui-modal-close class=\"inline-flex items-center justify-center font-semibold transition-all text-sm px-5 py-2.5 rounded-xl border border-white/10 hover:border-white/25 hover:bg-white/5 text-slate-200\">Cancel</button><button type=\"button\" data-ui-modal-close class=\"inline-flex items-center justify-center font-semibold transition-all text-sm px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white\">Reset</button>")}}
+    {{template "demo-close" dict "Call" (index $.Calls "ui/modal")}}
+
+    {{template "demo-open" dict "Name" "ui/note" "Anchor" "note"}}
+        {{template "ui/note" dict "Body" "A quiet aside, for something worth saying that is not a warning."}}
+    {{template "demo-close" dict "Call" (index $.Calls "ui/note")}}
+
+    {{template "ui/divider" dict "Label" "navigation"}}
+
+    {{template "demo-open" dict "Name" "ui/tabs" "Anchor" "tabs" "Note" "Arrows, Home and End move between tabs"}}
+        {{template "ui/tabs" dict "Id" "demo" "Tabs" (slice
+            (dict "Id" "prompt" "Label" "Prompt" "Body" (safe "<p class=\"text-sm text-slate-400\">Return a greeting for name.</p>"))
+            (dict "Id" "tests" "Label" "Tests" "Body" (safe "<p class=\"text-sm text-slate-400\">Three cases, one of them empty.</p>"))
+            (dict "Id" "solution" "Label" "Solution" "Body" (safe "<p class=\"text-sm text-slate-400\">Unlocks once yours passes.</p>")))}}
+    {{template "demo-close" dict "Call" (index $.Calls "ui/tabs")}}
+
+    {{template "demo-open" dict "Name" "ui/breadcrumb  ui/back" "Anchor" "breadcrumb"}}
+        {{template "ui/breadcrumb" dict "Items" (slice
+            (dict "Label" "Steps" "Href" "/steps")
+            (dict "Label" "Basics" "Href" "/steps")
+            (dict "Label" "0001"))}}
+        <div class="mt-4">{{template "ui/back" dict "Href" "/steps" "Label" "All steps"}}</div>
+    {{template "demo-close" dict "Call" (index $.Calls "ui/breadcrumb")}}
+
+    {{template "demo-open" dict "Name" "ui/pagination" "Anchor" "pagination" "Note" "Windowed: 1000 pages, a handful of links"}}
+        {{template "ui/pagination" dict "Current" 42 "Total" 100 "Base" "#page-"}}
+    {{template "demo-close" dict "Call" (index $.Calls "ui/pagination")}}
+
+    {{template "demo-open" dict "Name" "ui/prevnext" "Anchor" "prevnext"}}
+        {{template "ui/prevnext" dict
+            "Prev" (dict "Href" "#prevnext" "Label" "Hello, world" "Sub" "0001")
+            "Next" (dict "Href" "#prevnext" "Label" "Zero values" "Sub" "0003")}}
+    {{template "demo-close" dict "Call" (index $.Calls "ui/prevnext")}}
+
+    {{template "ui/divider" dict "Label" "exercise"}}
+
+    {{template "demo-open" dict "Name" "ui/step-card" "Anchor" "step-card"}}
+        <div class="grid gap-4 sm:grid-cols-3">
+            {{template "ui/step-card" dict "Number" 1 "Title" "Hello, world" "Href" "#step-card" "Status" "passed"}}
+            {{template "ui/step-card" dict "Number" 2 "Title" "Zero values" "Href" "#step-card" "Status" "attempted"}}
+            {{template "ui/step-card" dict "Number" 3 "Title" "Short declarations" "Href" "#step-card" "Topic" "basics"}}
+        </div>
+    {{template "demo-close" dict "Call" (index $.Calls "ui/step-card")}}
+
+    {{template "demo-open" dict "Name" "ui/prompt" "Anchor" "prompt"}}
+        {{template "ui/prompt" dict "Number" 1 "Title" "Make the test pass" "Topic" "basics"
+            "Body" (safe "<p>Greet returns a greeting for name. The test wants <code class=\"text-goblue-400\">Hello, world</code>.</p>")}}
+    {{template "demo-close" dict "Call" (index $.Calls "ui/prompt")}}
+
+    {{template "demo-open" dict "Name" "ui/hint" "Anchor" "hint" "Note" "Collapsed, so it is never spoiled"}}
+        <div class="space-y-2">
+            {{template "ui/hint" dict "Label" "Hint" "Body" (safe "<p>String concatenation with + is enough here.</p>")}}
+            {{template "ui/hint" dict "Label" "Another hint" "Body" (safe "<p>The test compares exact bytes, so watch the comma.</p>")}}
+        </div>
+    {{template "demo-close" dict "Call" (index $.Calls "ui/hint")}}
+
+    {{template "demo-open" dict "Name" "ui/test-result" "Anchor" "test-result"}}
+        <div class="space-y-3">
+            {{template "ui/test-result" dict "Passed" true "Total" 3}}
+            {{template "ui/test-result" dict "Passed" false "Failed" 1 "Total" 3 "Output" "--- FAIL: TestGreet/empty\n    greet_test.go:21: Greet(\"\") = \"Hello, \", want \"Hello\""}}
+        </div>
+    {{template "demo-close" dict "Call" (index $.Calls "ui/test-result")}}
+
+    {{template "demo-open" dict "Name" "ui/solution" "Anchor" "solution"}}
+        {{template "ui/solution" dict "Locked" true "Class" "mb-3"}}
+        {{template "ui/solution" dict "Code" .Sample "File" "solution.go" "Note" "Compare, do not copy."}}
+    {{template "demo-close" dict "Call" (index $.Calls "ui/solution")}}
+
+    {{template "demo-open" dict "Name" "ui/checklist" "Anchor" "checklist"}}
+        {{template "ui/checklist" dict "Items" (slice
+            (dict "Label" "Read the prompt" "Done" true)
+            (dict "Label" "Make the test pass" "Done" true)
+            (dict "Label" "Read the reference solution"))}}
+    {{template "demo-close" dict "Call" (index $.Calls "ui/checklist")}}
+
+    </div>
+</main>
+{{end}}

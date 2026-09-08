@@ -7,7 +7,9 @@ tmp_dir = "tmp"
   bin = "./tmp/main"
   cmd = "go build -o ./tmp/main ."
   delay = 1000
-  exclude_dir = ["assets", "tmp", "vendor", "testdata"]
+  # static/ is served straight off disk, so a JS or CSS edit needs a browser
+  # refresh, not a rebuild. Templates are parsed at startup, so html does.
+  exclude_dir = ["assets", "tmp", "vendor", "testdata", "tmp-docker", "static", ".git", ".github"]
   exclude_file = []
   exclude_regex = ["_test.go"]
   exclude_unchanged = false

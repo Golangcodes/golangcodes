@@ -1,0 +1,46 @@
+name: golangcodes
+
+services:
+  # Production image, the same one that ships. Default target:
+  #   docker compose up --build
+  web:
+    build:
+      context: .
+      target: runtime
+    image: golang-codes:local
+    ports:
+      - "${HOST_PORT:-8080}:8080"
+    environment:
+      PORT: 8080
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+
+  # Hot-reloading development server, same air config as running it on the host:
+  #   docker compose --profile dev up
+  dev:
+    build:
+      context: .
+      target: dev
+    profiles: ["dev"]
+    ports:
+      - "${HOST_PORT:-8080}:8080"
+    environment:
+      PORT: 8080
+    volumes:
+      - .:/src
+      # Anonymous volume: keeps air's Linux build output out of the host tree,
+      # where it would collide with a binary built by `make dev`.
+      - /src/tmp-docker
+      # Named caches, so a container restart does not re-download the module
+      # cache or throw away the build cache.
+      - go-mod-cache:/go/pkg/mod
+      - go-build-cache:/root/.cache/go-build
+
+volumes:
+  go-mod-cache:
+  go-build-cache:

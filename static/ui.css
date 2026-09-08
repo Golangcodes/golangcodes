@@ -1,0 +1,97 @@
+/* Component styles that Tailwind utilities cannot express: the editor's
+   gutter, toast motion, and line-numbered code blocks. Everything else lives
+   in utility classes on the components themselves. */
+
+/* ---------------------------------------------------------------- editor */
+
+.ui-editor-body {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    overflow: hidden;
+    background: rgb(15 23 42 / 0.4);
+}
+
+.ui-editor-gutter,
+.ui-editor-input {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    padding: 1rem 0;
+    margin: 0;
+    border: 0;
+}
+
+.ui-editor-gutter {
+    padding-left: 1rem;
+    padding-right: 0.75rem;
+    text-align: right;
+    color: #475569;
+    user-select: none;
+    overflow: hidden;
+    white-space: pre;
+    border-right: 1px solid rgb(255 255 255 / 0.05);
+}
+
+.ui-editor-input {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    color: #e2e8f0;
+    background: transparent;
+    resize: none;
+    outline: none;
+    overflow: auto;
+    white-space: pre;
+    tab-size: 4;
+    -moz-tab-size: 4;
+}
+
+.ui-editor-input::placeholder { color: #475569; }
+
+/* --------------------------------------------------------------- toasts */
+
+.ui-toast {
+    pointer-events: auto;
+    animation: ui-toast-in 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ui-toast[data-leaving] {
+    animation: ui-toast-out 140ms ease-in forwards;
+}
+
+@keyframes ui-toast-in {
+    from { opacity: 0; transform: translateY(0.5rem) scale(0.97); }
+    to   { opacity: 1; transform: none; }
+}
+
+@keyframes ui-toast-out {
+    to { opacity: 0; transform: translateY(0.25rem) scale(0.98); }
+}
+
+/* ------------------------------------------------------- numbered code */
+
+pre.ui-numbered code {
+    counter-reset: ui-line;
+}
+
+pre.ui-numbered code > .ui-line {
+    counter-increment: ui-line;
+    display: block;
+}
+
+pre.ui-numbered code > .ui-line::before {
+    content: counter(ui-line);
+    display: inline-block;
+    width: 2.5em;
+    margin-right: 1em;
+    text-align: right;
+    color: #475569;
+    user-select: none;
+}
+
+/* `details` markers are replaced by our own chevron. */
+summary::-webkit-details-marker { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+    .ui-toast, .ui-toast[data-leaving] { animation: none; }
+    * { transition-duration: 0.01ms !important; }
+}

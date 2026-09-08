@@ -1,50 +1,37 @@
-const CACHE_NAME = 'golangcodes-cache-v1';
+const CACHE_NAME = "golangcodes-cache-v3";
 
-// We initially cache just the bare minimum needed to show an offline UI or install prompt
+// The shell only.
 const urlsToCache = [
-    '/',
-    '/static/golangcodeslogo.jpeg',
-    '/static/gopher.webp',
-    '/static/main.js',
-    '/static/storage.js'
+    "/",
+    "/steps",
+    "/static/golangcodeslogo.jpeg",
+    "/static/highlight.js",
 ];
 
-self.addEventListener('install', event => {
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('Opened cache');
-                return cache.addAll(urlsToCache);
-            })
-    );
+self.addEventListener("install", (event) => {
+    event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache)));
 });
 
-self.addEventListener('fetch', event => {
-    // Pass-through strategy for now, simply fetching from network.
-    // The service worker exists primarily to satisfy PWA installability requirements initially.
+self.addEventListener("fetch", (event) => {
+    // Network first, falling back to the cache when offline. Cache-first served
+    // stale pages after new exercises went up.
+    if (event.request.method !== "GET") return;
+
     event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                // Cache hit - return response
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request);
+        fetch(event.request)
+            .then((response) => {
+                const copy = response.clone();
+                caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+                return response;
             })
+            .catch(() => caches.match(event.request))
     );
 });
 
-self.addEventListener('activate', event => {
-    const cacheWhitelist = [CACHE_NAME];
+self.addEventListener("activate", (event) => {
     event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.map(cacheName => {
-                    if (cacheWhitelist.indexOf(cacheName) === -1) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
+        caches.keys().then((names) =>
+            Promise.all(names.filter((n) => n !== CACHE_NAME).map((n) => caches.delete(n)))
+        )
     );
 });

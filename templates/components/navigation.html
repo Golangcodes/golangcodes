@@ -1,0 +1,85 @@
+{{/* Navigation: tabs, breadcrumb, pagination, prev/next, back. */}}
+
+{{/* ui/tabs — Id(required) Tabs: slice of dicts with Id, Label and Body(HTML). Class
+     Keyboard: arrows move, Home/End jump. Wired by static/ui.js. */}}
+{{define "ui/tabs"}}
+<div class="{{def "" .Class}}" data-ui-tabs>
+    <div class="flex items-center gap-1 border-b border-white/5 mb-5 overflow-x-auto" role="tablist">
+        {{range $i, $t := .Tabs}}
+        <button type="button" role="tab" id="{{$.Id}}-tab-{{$t.Id}}"
+            aria-controls="{{$.Id}}-panel-{{$t.Id}}" aria-selected="{{if eq $i 0}}true{{else}}false{{end}}"
+            tabindex="{{if eq $i 0}}0{{else}}-1{{end}}"
+            class="shrink-0 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors
+                   aria-selected:border-goblue-500 aria-selected:text-white
+                   border-transparent text-slate-500 hover:text-slate-300">
+            {{$t.Label}}
+        </button>
+        {{end}}
+    </div>
+    {{range $i, $t := .Tabs}}
+    <div role="tabpanel" id="{{$.Id}}-panel-{{$t.Id}}" aria-labelledby="{{$.Id}}-tab-{{$t.Id}}"
+        {{if ne $i 0}}hidden{{end}}>{{$t.Body}}</div>
+    {{end}}
+</div>
+{{end}}
+
+{{/* ui/breadcrumb — Items: slice of dicts with Label and optional Href */}}
+{{define "ui/breadcrumb"}}
+<nav class="flex items-center gap-2 text-sm {{def "" .Class}}" aria-label="Breadcrumb">
+    {{range $i, $c := .Items}}
+    {{if $i}}<span class="text-slate-700" aria-hidden="true">/</span>{{end}}
+    {{if $c.Href}}
+    <a href="{{$c.Href}}" class="text-slate-500 hover:text-goblue-400 transition-colors">{{$c.Label}}</a>
+    {{else}}
+    <span class="text-slate-300" aria-current="page">{{$c.Label}}</span>
+    {{end}}
+    {{end}}
+</nav>
+{{end}}
+
+{{/* ui/pagination — Current(required) Total(required) Base(required, e.g. "/steps?page=")
+     Windowed, so 1000 pages render as a handful of links. */}}
+{{define "ui/pagination"}}
+{{- if gt .Total 1 -}}
+<nav class="flex items-center justify-center gap-1 {{def "" .Class}}" aria-label="Pagination">
+    <a href="{{.Base}}{{sub .Current 1}}" aria-label="Previous page"
+       class="px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-colors {{if le .Current 1}}pointer-events-none opacity-30{{end}}">&larr;</a>
+    {{range paginate .Current .Total}}
+        {{if eq . 0}}
+        <span class="px-2 text-slate-700" aria-hidden="true">&hellip;</span>
+        {{else if eq . $.Current}}
+        <span class="px-3.5 py-2 rounded-lg text-sm font-mono font-semibold bg-goblue-500 text-white" aria-current="page">{{.}}</span>
+        {{else}}
+        <a href="{{$.Base}}{{.}}" class="px-3.5 py-2 rounded-lg text-sm font-mono text-slate-400 hover:text-white hover:bg-white/5 transition-colors">{{.}}</a>
+        {{end}}
+    {{end}}
+    <a href="{{.Base}}{{add .Current 1}}" aria-label="Next page"
+       class="px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-colors {{if ge .Current .Total}}pointer-events-none opacity-30{{end}}">&rarr;</a>
+</nav>
+{{- end -}}
+{{end}}
+
+{{/* ui/prevnext — Prev and Next: dicts with Href, Label, Sub. Either may be absent. */}}
+{{define "ui/prevnext"}}
+<nav class="grid gap-3 sm:grid-cols-2 {{def "" .Class}}" aria-label="Step navigation">
+    {{if .Prev}}
+    <a href="{{.Prev.Href}}" class="group border border-white/5 hover:border-goblue-500/40 bg-slate-900/40 rounded-xl px-5 py-4 transition-all">
+        <span class="block text-xs text-slate-600 mb-1">&larr; {{def "Previous" .Prev.Sub}}</span>
+        <span class="font-heading font-semibold text-slate-200 group-hover:text-goblue-400 transition-colors">{{.Prev.Label}}</span>
+    </a>
+    {{else}}<span></span>{{end}}
+    {{if .Next}}
+    <a href="{{.Next.Href}}" class="group border border-white/5 hover:border-goblue-500/40 bg-slate-900/40 rounded-xl px-5 py-4 transition-all sm:text-right">
+        <span class="block text-xs text-slate-600 mb-1">{{def "Next" .Next.Sub}} &rarr;</span>
+        <span class="font-heading font-semibold text-slate-200 group-hover:text-goblue-400 transition-colors">{{.Next.Label}}</span>
+    </a>
+    {{end}}
+</nav>
+{{end}}
+
+{{/* ui/back — Href(required) Label */}}
+{{define "ui/back"}}
+<a href="{{.Href}}" class="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-goblue-400 transition-colors {{def "" .Class}}">
+    <span aria-hidden="true">&larr;</span>{{def "Back" .Label}}
+</a>
+{{end}}
