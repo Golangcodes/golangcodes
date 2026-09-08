@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"time"
 )
 
 // pageNames are the top-level pages. Each is parsed together with layout.html
@@ -189,6 +190,7 @@ type page struct {
 	BodyClass   string
 	FixedNav    bool
 	Dev         bool
+	Year        int
 }
 
 func newPage(title, description, canonical, nav string) page {
@@ -200,6 +202,7 @@ func newPage(title, description, canonical, nav string) page {
 		BodyClass:   "flex flex-col min-h-screen",
 		FixedNav:    true,
 		Dev:         Dev,
+		Year:        time.Now().Year(),
 	}
 }
 
